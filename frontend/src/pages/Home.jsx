@@ -77,16 +77,6 @@ const HomeFintech = () => {
                                         <button onClick={() => navigate('/select-person-type')} className="w-full bg-[#279a94] text-white py-4 rounded-2xl font-bold uppercase tracking-widest hover:bg-[#0c516e] transition-all">Prerregistro</button>
                                     </div>
                                 </div>
-
-                                {/* ROL 2: ADMINISTRACIÓN */}
-                                <div className="bg-slate-900 p-10 rounded-[2.5rem] shadow-2xl hover:shadow-indigo-500/10 transition-all group flex items-start gap-6 border-b-4 border-b-white/5">
-                                    <div className="w-16 h-16 shrink-0 bg-slate-800 text-teal-400 rounded-2xl flex items-center justify-center text-2xl font-light">02</div>
-                                    <div className="flex-1">
-                                        <h3 className="text-2xl font-light mb-2 text-white uppercase tracking-tighter">Gestión Pagos</h3>
-                                        <p className="text-slate-400 text-sm mb-6 font-light">Automatiza conciliación y nómina mediante nuestra API.</p>
-                                        <button onClick={() => navigate('/register-admin')} className="w-full bg-white text-slate-900 py-4 rounded-2xl font-bold uppercase tracking-widest hover:bg-teal-400 transition-all">Registro de Admin</button>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>

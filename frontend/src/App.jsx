@@ -13,6 +13,10 @@ import Onboarding from "./pages/Onboarding";
 import LivenessCheck from "./pages/LivenessCheck";
 import IneUpload from "./pages/IneUpload";
 
+//Pagos
+import EndUserLogin from "./pages/EndUser/EndUserLogin";
+import UserPortal from "./pages/EndUser/UserPortal";
+
 function App() {
   return (
     <BrowserRouter>
@@ -26,6 +30,9 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/verify-phone" element={<VerifyPhone />} />
+
+        <Route path="/end-user/login" element={<EndUserLogin />} />
+        <Route path="/user-portal" element={<UserPortal />} />
 
         {/* Onboarding */}
         <Route path="/onboarding" element={<Onboarding />} />
