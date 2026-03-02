@@ -4,41 +4,29 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-    /**
-     * Run the migrations.
-     */
+return new class extends Migration {
     public function up(): void
     {
         Schema::create('end_users', function (Blueprint $table) {
             $table->id();
-
-            // Relación con la tabla 'clientes' (la empresa que recibe el crédito)
-            // Usamos 'cascade' para que si se borra la empresa, se limpien sus usuarios.
+            // El Cliente (dueño del SaaS de cobranza) es el dueño de este registro
             $table->foreignId('cliente_id')->constrained('clientes')->onDelete('cascade');
 
-            // Datos de identidad del usuario final
+            // Datos del pagador final (cliente de tu cliente)
             $table->string('name');
-            $table->string('email')->unique();
-            $table->string('password');
+            $table->string('email')->nullable();
 
-            // Datos específicos para el flujo de STP
-            // Aquí guardarás la CLABE única que STP le asigne a este usuario específico
-            $table->string('clabe_stp', 18)->nullable()->unique();
-            $table->string('referencia_interna')->nullable(); // Ej: Número de contrato o expediente
+            // Motor STP
+            $table->string('clabe_stp', 18)->unique()->index();
+            $table->string('referencia_interna')->nullable(); // Ej: Contrato #
 
-            // Estado de la cuenta del usuario
+            // Estado operativo
             $table->boolean('is_active')->default(true);
-
             $table->timestamps();
-            $table->softDeletes(); // Recomendado para no perder historial financiero por error
+            $table->softDeletes(); // Para no perder historial de cobranza
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('end_users');

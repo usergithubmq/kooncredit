@@ -20,8 +20,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Silenciar advertencias de funciones obsoletas para no ensuciar el JSON
+        error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+
         ResetPassword::createUrlUsing(function (object $notifiable, string $token) {
-            return config('app.frontend_url')."/password-reset/$token?email={$notifiable->getEmailForPasswordReset()}";
+            return config('app.frontend_url') . "/password-reset/$token?email={$notifiable->getEmailForPasswordReset()}";
         });
     }
 }

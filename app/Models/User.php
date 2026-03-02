@@ -12,26 +12,16 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
-        'person_type',
         'name',
         'first_last',
         'second_last',
         'email',
+        'role',
         'password',
         'phone',
         'phone_verification_code',
         'phone_verified_at',
-        'role',
-        'liveness_verified',
-        'ine_front_path',
-        'ine_back_path',
-        'ine_verified',
-        'ine_name',
-        'ine_curp',
-        'ine_clave_elector',
-        'ine_vigencia',
     ];
-
 
     protected $hidden = [
         'password',
@@ -46,5 +36,17 @@ class User extends Authenticatable
             'phone_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /* ====================
+       RELACIONES
+       ==================== */
+
+    /**
+     * Un Usuario (con rol cliente) tiene un perfil de Cliente.
+     */
+    public function cliente()
+    {
+        return $this->hasOne(Cliente::class);
     }
 }

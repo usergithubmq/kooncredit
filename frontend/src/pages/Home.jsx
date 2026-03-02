@@ -11,7 +11,10 @@ const HomeFintech = () => {
             {/* --- SIDEBAR COMPACTO --- */}
             <aside className="w-60 bg-[#0c516e] text-white flex flex-col fixed h-full z-50 shadow-2xl">
                 <div className="p-12 flex justify-center">
-                    <div className="cursor-pointer group" onClick={() => navigate('/')}>
+                    <div
+                        className="cursor-pointer group"
+                        onClick={() => window.location.href = 'https://koonfinansen.com.mx'}
+                    >
                         <img src={Logo} alt="Logo" className="w-25 h-25 object-contain group-hover:scale-105 transition-transform" />
                     </div>
                 </div>
@@ -46,7 +49,7 @@ const HomeFintech = () => {
 
             {/* --- CONTENIDO PRINCIPAL --- */}
             <main className="flex-1 ml-60">
-                <section className="relative pt-12 pb-20 bg-gradient-to-br from-slate-50 to-white overflow-hidden min-h-screen flex items-center">
+                <section className="relative pt-10 bg-gradient-to-br from-slate-50 to-white overflow-hidden min-h-screen flex items-center">
                     <div className="container mx-auto px-8 md:px-16 relative z-10">
 
                         <div className="max-w-6xl w-full">
@@ -69,12 +72,22 @@ const HomeFintech = () => {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10">
                                 {/* ROL 1: CRÉDITO */}
-                                <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-xl hover:shadow-2xl transition-all group flex items-start gap-6 border-b-4 border-b-teal-500/10">
-                                    <div className="w-16 h-16 shrink-0 bg-teal-50 text-[#279a94] rounded-2xl flex items-center justify-center text-2xl font-light italic">01</div>
+                                <div className="bg-[#0c516e] p-10 rounded-[2.5rem] border border-slate-100 shadow-xl hover:shadow-2xl transition-all group flex items-start gap-6 border-b-4 border-b-teal-500/10">
+                                    <div className="w-16 h-16 shrink-0 bg-teal-50 text-[#279a94] rounded-2xl flex items-center justify-center text-2xl font-light">01</div>
                                     <div className="flex-1">
-                                        <h3 className="text-2xl font-light mb-2 text-[#0c516e] uppercase tracking-tighter">Busco Crédito</h3>
-                                        <p className="text-slate-500 text-sm mb-6 font-light">Precalifica tu empresa en minutos y obtén liquidez inmediata.</p>
-                                        <button onClick={() => navigate('/select-person-type')} className="w-full bg-[#279a94] text-white py-4 rounded-2xl font-bold uppercase tracking-widest hover:bg-[#0c516e] transition-all">Prerregistro</button>
+                                        <h3 className="text-2xl font-light mb-2 text-white uppercase tracking-tighter">Crédito empresarial</h3>
+                                        <p className="text-slate-300 text-sm mb-6 font-light">Precalifica tu empresa en minutos y obtén liquidez inmediata.</p>
+                                        <button onClick={() => navigate('/select-person-type')} className="w-full bg-[#279a94] text-white py-4 rounded-2xl font-bold uppercase tracking-widest hover:bg-[#568fa5] transition-all">Prerregistro</button>
+                                    </div>
+                                </div>
+
+                                {/* ROL 2: ADMINISTRACIÓN */}
+                                <div className="bg-[#0c516e] p-10 rounded-[2.5rem] shadow-2xl hover:shadow-indigo-500/10 transition-all group flex items-start gap-6 border-b-4 border-b-white/5">
+                                    <div className="w-16 h-16 shrink-0 bg-teal-50 text-[#279a94] rounded-2xl flex items-center justify-center text-2xl font-light">02</div>
+                                    <div className="flex-1">
+                                        <h3 className="text-2xl font-light mb-2 text-white uppercase tracking-tighter">Renta Potenciada</h3>
+                                        <p className="text-slate-300 text-sm mb-6 font-light">Automatiza conciliación y nómina mediante nuestra API.</p>
+                                        <button onClick={() => navigate('/select-person-type')} className="w-full bg-[#279a94] text-white py-4 rounded-2xl font-bold uppercase tracking-widest hover:bg-[#568fa5] transition-all">Prerregistro</button>
                                     </div>
                                 </div>
                             </div>
@@ -87,11 +100,11 @@ const HomeFintech = () => {
                 </section>
 
                 <footer className="bg-white py-8 px-16 border-t border-slate-100">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] font-black text-slate-500 uppercase tracking-widest">
                         <div className="flex gap-4">
                             {['CDMX', 'SaaS', 'Fintech'].map(tag => <span key={tag}>#{tag}</span>)}
                         </div>
-                        <div className="italic font-light uppercase tracking-tighter text-slate-400">KOONFINANCE © 2026</div>
+                        <div className="font-light uppercase tracking-tighter text-slate-400">KOONFINANCE © 2026</div>
                     </div>
                 </footer>
             </main>

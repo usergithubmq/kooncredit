@@ -67,7 +67,7 @@ export default function Onboarding() {
                                 hub
                             </span>
                         </span>
-                        <span className="text-3xl font-bold">KoonCredit</span>
+                        <span className="text-3xl font-bold">KoonSystem</span>
                     </a>
 
                     <h1 className="text-4xl lg:text-5xl font-bold leading-tight mb-6">
@@ -222,7 +222,7 @@ export default function Onboarding() {
 
                     <p className="text-xs text-slate-400 mt-4 text-center">
                         Al continuar aceptas nuestro tratamiento de datos personales
-                        conforme al aviso de privacidad de KoonCredit.
+                        conforme al aviso de privacidad de KoonSystem.
                     </p>
                 </div>
             </div>
