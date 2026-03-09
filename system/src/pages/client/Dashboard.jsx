@@ -133,18 +133,18 @@ export default function Dashboard() {
                     <>
                         <header className="sticky top-0 z-50 flex items-center justify-between gap-4 px-6 py-4 bg-[#0c516e] backdrop-blur-md border-[#a8c6d4] shadow-sm mb-6">
                             <div className="flex flex-col gap-0.5">
+                                {/* Título y descripción unidos */}
+                                <div className="flex items-baseline">
+                                    <span className="text-[24px] text-[#fff] font-light hidden md:block">Gestión de cuentas referenciadas</span>
+                                </div>
+
                                 {/* Etiqueta compacta */}
                                 {clienteInfo?.nombre_comercial && (
-                                    <div className="flex items-center gap-1.5 text-[11px] font-black text-white uppercase tracking-[0.1em]">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse"></span>
+                                    <div className="flex items-center gap-1.5 text-[12px] font-normal text-teal-100 uppercase tracking-[0.1em]">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
                                         {clienteInfo.nombre_comercial}
                                     </div>
                                 )}
-
-                                {/* Título y descripción unidos */}
-                                <div className="flex items-baseline">
-                                    <span className="text-[26px] text-[#fff] font-normal hidden md:block">Gestión de cuentas referenciadas</span>
-                                </div>
                             </div>
 
                             <button
