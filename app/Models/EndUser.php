@@ -12,7 +12,7 @@ class EndUser extends Model
 
     protected $fillable = [
         'cliente_id',
-
+        'user_id',
         'name',
         'email',
         'referencia_interna',
@@ -30,5 +30,13 @@ class EndUser extends Model
     public function cliente()
     {
         return $this->belongsTo(Cliente::class);
+    }
+
+    /**
+     * El pagador está vinculado a un usuario de autenticación.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

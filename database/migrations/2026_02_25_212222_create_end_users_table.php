@@ -11,6 +11,7 @@ return new class extends Migration {
             $table->id();
             // El Cliente (dueño del SaaS de cobranza) es el dueño de este registro
             $table->foreignId('cliente_id')->constrained('clientes')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
 
             // Datos del pagador final (cliente de tu cliente)
             $table->string('name');

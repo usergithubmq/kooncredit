@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
             // --- IDENTIDAD FISCAL Y COMERCIAL ---
+            $table->string('logo_url')->nullable();
             $table->enum('tipo_cliente', ['persona', 'empresa']);
             $table->string('rfc')->unique()->nullable();
             $table->string('nombre_legal')->nullable();

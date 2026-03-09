@@ -12,6 +12,7 @@ class Cliente extends Model
     protected $fillable = [
         'user_id',
         'tipo_cliente',
+        'logo_url',
         'rfc',
         'nombre_legal',
         'nombre_comercial',

@@ -8,7 +8,9 @@ import VerifyPhone from "./pages/VerifyPhone";
 
 // Dashboards - REVISA QUE LAS CARPETAS SEAN EXACTAMENTE ASÍ:
 import AdminDashboard from "./pages/admin/Dashboard"; // 'admin' en minúsculas según tu captura
-import ClientDashboard from "./pages/Client/Dashboard"; // 'Client' con C mayúscula según tu captura
+import ClientDashboard from "./pages/client/Dashboard"; // 'Client' con C mayúscula según tu captura
+
+import Conciliacion from "./pages/client/Conciliacion";
 
 // Onboarding
 import Onboarding from "./pages/Onboarding";
@@ -28,6 +30,7 @@ function App() {
         {/* Dashboards */}
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/client/dashboard" element={<ClientDashboard />} />
+        <Route path="/client/conciliacion" element={<Conciliacion />} />
 
         {/* Onboarding */}
         <Route path="/onboarding" element={<Onboarding />} />

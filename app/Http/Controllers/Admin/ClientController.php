@@ -91,6 +91,60 @@ class ClientController extends Controller
         }
     }
 
+    public function getProfile(Request $request)
+    {
+        $user = $request->user();
+        $cliente = $user->cliente; // Asegúrate de tener la relación 'cliente' en el modelo User
+
+        if (!$cliente) {
+            return response()->json(['error' => 'Perfil no encontrado'], 404);
+        }
+
+        return response()->json([
+            'nombre_comercial' => $cliente->nombre_comercial,
+            'nombre_legal'     => $cliente->nombre_legal,
+            'logo_url'         => $cliente->logo_url, // Ruta relativa almacenada
+            'rfc'              => $cliente->rfc
+        ]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        // 1. Ver qué recibimos exactamente
+        \Log::info('Datos recibidos en request:', $request->all());
+        \Log::info('Archivos recibidos:', $request->file());
+
+        // 2. Validación "Relajada" (sin regla 'image')
+        $validator = \Validator::make($request->all(), [
+            'logo' => 'nullable|file|max:2048', // Quitamos 'image' y 'mimes'
+            'nombre_comercial' => 'nullable|string',
+            'rfc' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            \Log::error('Errores de validación:', $validator->errors()->toArray());
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $user = auth()->user();
+        $cliente = $user->cliente;
+
+        try {
+            if ($request->hasFile('logo')) {
+                $path = $request->file('logo')->store('logos', 'public');
+                $cliente->logo_url = $path;
+            }
+
+            $cliente->fill($request->only(['nombre_comercial', 'nombre_legal', 'rfc']));
+            $cliente->save();
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            \Log::error('Error de servidor: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     /**
      * Algoritmo de Dígito Verificador CLABE (Módulo 10 Ponderado)
      */
