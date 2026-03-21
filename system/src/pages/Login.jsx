@@ -15,13 +15,14 @@ export default function Login() {
         setLoading(true);
 
         try {
-            // 1. Obtener cookie CSRF
-            // Dentro de tu función handleLogin, antes del POST:
-            await authApi.get('/sanctum/csrf-cookie', { withCredentials: true });
-            // 2. Realizar login
-            const res = await api.post("/login", { email, password });
+            // 1. Obtener cookie CSRF (Usando authApi - Correcto)
+            await authApi.get('/sanctum/csrf-cookie');
 
-            // 3. Procesar respuesta (Asumimos JSON limpio del backend)
+            // 2. Realizar login -> ¡USA authApi AQUÍ TAMBIÉN!
+            // Cambiamos 'api' por 'authApi' para evitar el prefijo /api/
+            const res = await authApi.post("/login", { email, password });
+
+            // 3. Procesar respuesta
             const { user, token } = res.data;
 
             if (user && token) {
