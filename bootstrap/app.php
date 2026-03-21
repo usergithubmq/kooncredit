@@ -12,15 +12,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->alias([
-            'whitelist' => \App\Http\Middleware\CheckIpWhitelist::class,
-        ]);
-        $middleware->api(prepend: [
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-        ]);
+
+        // AGREGA ESTA LÍNEA AQUÍ ABAJO:
+        $middleware->trustProxies(at: '*');
 
         $middleware->alias([
+            'whitelist' => \App\Http\Middleware\CheckIpWhitelist::class,
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
+        ]);
+
+        $middleware->api(prepend: [
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [
