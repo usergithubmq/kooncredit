@@ -66,24 +66,50 @@ export default function Dashboard() {
         navigator.clipboard.writeText(text);
         alert("¡Copiado al portapapeles!");
     };
-    console.log("URL de la imagen:", clienteInfo?.logo_url ? `http://localhost:8000/storage/${clienteInfo.logo_url}` : "No hay logo");
+
+    const handleLogout = async () => {
+        try {
+            // 1. Avisamos al servidor que cerramos sesión (esto invalida el token en Laravel)
+            await api.post("/logout");
+        } catch (err) {
+            console.error("Error al avisar al servidor del logout", err);
+        } finally {
+            // 2. Limpiamos TODO el rastro local
+            localStorage.clear();
+            sessionStorage.clear();
+
+            // 3. ¡IMPORTANTE! Redireccionamos usando window.location para forzar 
+            // al navegador a pedir un token CSRF nuevo y limpio al recargar
+            window.location.href = "/login";
+        }
+    };
+
+    // Agrega esto antes del return en tu componente Dashboard
+    const getLogoUrl = (path) => {
+        if (!path) return null;
+        if (window.location.hostname === 'localhost') {
+            return `http://localhost:8000/storage/${path}`;
+        }
+        return `/storage/${path}`;
+    };
+
+
     return (
         <div className="min-h-screen bg-slate-50 flex font-sans">
             {/* SIDEBAR CLIENTE */}
             <aside className="w-72 bg-[#0c516e] p-6 hidden md:flex flex-col text-white shadow-2xl fixed h-full">
                 {clienteInfo?.logo_url ? (
                     <img
-                        // Agregamos un timestamp al final para evitar caché del navegador
-                        src={`http://localhost:8000/storage/${clienteInfo.logo_url}?${Date.now()}`}
+                        src={`${getLogoUrl(clienteInfo.logo_url)}?${Date.now()}`}
                         alt="Logo Empresa"
                         className="h-25 w-auto mb-10 object-contain"
                         onError={(e) => {
                             console.error("Error cargando imagen:", e.target.src);
-                            e.target.style.display = 'none'; // Oculta si falla
+                            e.target.style.display = 'none';
                         }}
                     />
                 ) : (
-                    <h1 className="text-3xl font-black mb-10 tracking-tight text-teal-400 uppercase tracking-tighter">
+                    <h1 className="text-3xl font-black mb-10 tracking-tight text-teal-400 uppercase">
                         KOON<span className="text-white"> SYSTEM</span>
                     </h1>
                 )}
@@ -121,8 +147,10 @@ export default function Dashboard() {
                         Reporte de Pagos
                     </button>
                 </nav>
-                <button onClick={() => { localStorage.clear(); navigate("/login"); }}
-                    className="flex items-center gap-3 p-3 text-red-300 hover:text-white transition-colors text-xs font-bold border-t border-white/10 pt-6 uppercase tracking-widest">
+                <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 p-3 text-red-300 hover:text-white transition-colors text-xs font-bold border-t border-white/10 pt-6 uppercase tracking-widest"
+                >
                     <FaSignOutAlt /> SALIR
                 </button>
             </aside>
