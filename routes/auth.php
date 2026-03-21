@@ -4,31 +4,34 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
-use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use Illuminate\Support\Facades\Route;
 
-// Registro
-Route::post('/register', [RegisterController::class, 'register'])
-    ->middleware('guest')
-    ->name('register');
+/*
+|--------------------------------------------------------------------------
+| Auth Routes - KoonSystem
+|--------------------------------------------------------------------------
+*/
 
-// Login 
-Route::post('/login', [LoginController::class, 'login'])
-    ->middleware('guest')
-    ->name('login');
+// Rutas para invitados (Guest)
+Route::middleware('guest')->group(function () {
+    // Login
+    Route::post('/login', [LoginController::class, 'login'])
+        ->name('login');
 
-// Olvidé mi contraseña
-Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
-    ->middleware('guest')
-    ->name('password.email');
+    // Registro
+    Route::post('/register', [RegisterController::class, 'register'])
+        ->name('register');
 
-// Resetear contraseña
-Route::post('/reset-password', [NewPasswordController::class, 'store'])
-    ->middleware('guest')
-    ->name('password.store');
+    // Recuperación de contraseña
+    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
+        ->name('password.email');
 
-// Logout (Usando tu LoginController)
-Route::post('/logout', [LoginController::class, 'logout'])
-    ->middleware('auth')
-    ->name('logout');
+    Route::post('/reset-password', [NewPasswordController::class, 'store'])
+        ->name('password.store');
+});
+
+// Rutas que requieren estar logueado
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [LoginController::class, 'logout'])
+        ->name('logout');
+});

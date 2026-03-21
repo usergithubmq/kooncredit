@@ -15,20 +15,19 @@ export default function Login() {
         setLoading(true);
 
         try {
-            // 1. Obtener cookie CSRF (Usando authApi - Correcto)
+            // 1. Obtener la llave (CSRF) usando la raíz del dominio
+            // URL: https://app.koonfinansen.com.mx/sanctum/csrf-cookie
             await authApi.get('/sanctum/csrf-cookie');
 
-            // 2. Realizar login -> ¡USA authApi AQUÍ TAMBIÉN!
-            // Cambiamos 'api' por 'authApi' para evitar el prefijo /api/
+            // 2. Hacer el POST del login (Sin el prefijo /api)
+            // URL: https://app.koonfinansen.com.mx/login
             const res = await authApi.post("/login", { email, password });
 
-            // 3. Procesar respuesta
+            // 3. Guardar datos y navegar
             const { user, token } = res.data;
-
             if (user && token) {
                 localStorage.setItem("token", token);
                 localStorage.setItem("role", user.role);
-
                 navigate(user.role === "admin" ? "/admin/dashboard" : "/client/dashboard");
             }
         } catch (err) {

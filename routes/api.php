@@ -5,8 +5,6 @@ use Illuminate\Support\Facades\Route;
 
 // Controladores
 use App\Http\Controllers\Api\EnrolamientoController;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\PhoneVerificationController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Cliente\EndUserController;
@@ -25,9 +23,6 @@ use App\Http\Controllers\Stp\StpWebhookController;
 // Webhook externo (Sin Auth)
 Route::post('/stp/webhook/abono', [StpWebhookController::class, 'recibirAbono']);
 
-// Autenticación
-Route::post('/login', [LoginController::class, 'login']);
-Route::post('/register', [RegisterController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -76,6 +71,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user()->load(['cliente']);
     });
-
-    Route::post('/logout', [LoginController::class, 'logout']);
 });
