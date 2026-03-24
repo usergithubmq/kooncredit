@@ -28,7 +28,7 @@ class Credito extends Model
         return $this->belongsTo(Solicitud::class);
     }
 
-    public function analista()
+    public function cliente_final()
     {
         return $this->belongsTo(User::class, 'user_id');
     }

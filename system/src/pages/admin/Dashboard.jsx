@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { FaUserPlus, FaUsers, FaSignOutAlt, FaBuilding, FaUserTie, FaCheckCircle, FaShieldAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import api from "../../api/axios";
+import api, { authApi } from "../../api/axios";
 import ClientList from "./components/ClientList";
+import logoKoon from "../../assets/kf3d.png";
 
 export default function Dashboard() {
     const navigate = useNavigate();
@@ -22,14 +23,24 @@ export default function Dashboard() {
         e.preventDefault();
         setLoading(true);
         try {
+            // --- PASO CLAVE PARA EVITAR EL ERROR 419 ---
+            // Esto le pide a Laravel la "ficha de seguridad" (cookie)
+            await authApi.get("/sanctum/csrf-cookie");
+
+            // Ahora sí, enviamos el formulario con la ficha ya cargada en el navegador
             await api.post("/admin/clients", formData);
+
             alert("¡Éxito! Cliente registrado con sus cuentas STP.");
-            // Resetear formulario y enviarlo a la lista para ver el nuevo registro
             setFormData({ person_type: "moral", name: "", first_last: "", second_last: "", email: "", rfc: "", password: "password123" });
             setView("list");
         } catch (err) {
-            console.error(err.response?.data);
-            alert("Error: " + (err.response?.data?.error || "Revisa los campos o el RFC duplicado"));
+            // Esto te dirá si el servidor respondió o si la petición ni siquiera salió
+            console.error("Error Detallado:", {
+                message: err.message,
+                response: err.response?.data,
+                status: err.response?.status
+            });
+            alert("Error: " + (err.response?.data?.message || "Error de conexión con el servidor"));
         } finally { setLoading(false); }
     };
 
@@ -37,8 +48,34 @@ export default function Dashboard() {
         <div className="min-h-screen bg-[#f8fafc] flex font-sans">
             {/* SIDEBAR */}
             <aside className="w-72 bg-[#0c516e] shadow-xl p-6 hidden md:flex flex-col text-white fixed h-full">
-                <h1 className="text-2xl font-black mb-10 tracking-tighter text-teal-400">KOON<span className="text-white">SYSTEM</span></h1>
+                {/* CONTENEDOR DEL LOGO */}
+                <div className="flex flex-col items-center justify-center mb-12 group cursor-pointer relative">
+                    {/* Aura de luz detrás del logo (Solo visible al hacer hover) */}
+                    <div className="absolute w-32 h-32 bg-teal-500/10 rounded-full blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
+                    <div className="relative">
+                        {/* Imagen del Logo con Reflejo Dinámico */}
+                        <div className="relative overflow-hidden">
+                            <img
+                                src={logoKoon}
+                                alt="KoonSystem Logo"
+                                className="w-150 h-150 object-contain transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:scale-110 group-hover:drop-shadow-[0_10px_15px_rgba(0,0,0,0.2)]"
+                            />
+
+                            {/* Destello de luz que cruza el logo al pasar el mouse */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] pointer-events-none" />
+                        </div>
+                    </div>
+
+                    {/* Etiqueta Minimalista */}
+                    <div className="mt-4 flex flex-col items-center gap-1">
+                        <span className="text-[9px] font-black uppercase tracking-[0.5em] text-white/40 group-hover:text-teal-400 transition-colors duration-500">
+                            Koon Finansen
+                        </span>
+                        {/* Línea decorativa que crece */}
+                        <div className="h-[2px] w-0 bg-teal-400 group-hover:w-8 transition-all duration-500 rounded-full" />
+                    </div>
+                </div>
                 <nav className="space-y-2 flex-1">
                     <button
                         onClick={() => setView("create")}

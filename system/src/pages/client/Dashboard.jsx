@@ -7,6 +7,7 @@ import Conciliacion from "./Conciliacion";
 import ProfileView from "./ProfileView";
 import StpAccountsTable from "./components/StpAccountsTable";
 import BalanceModal from "./components/BalanceModal";
+import KoonSidebar from "./components/KoonSidebar";
 
 export default function Dashboard() {
     const navigate = useNavigate();
@@ -96,67 +97,18 @@ export default function Dashboard() {
 
     return (
         <div className="min-h-screen bg-slate-50 flex font-sans">
-            {/* SIDEBAR CLIENTE */}
-            <aside className="w-72 bg-[#0c516e] p-6 hidden md:flex flex-col text-white shadow-2xl fixed h-full">
-                {clienteInfo?.logo_url ? (
-                    <img
-                        src={`${getLogoUrl(clienteInfo.logo_url)}?${Date.now()}`}
-                        alt="Logo Empresa"
-                        className="h-25 w-auto mb-10 object-contain"
-                        onError={(e) => {
-                            console.error("Error cargando imagen:", e.target.src);
-                            e.target.style.display = 'none';
-                        }}
-                    />
-                ) : (
-                    <h1 className="text-3xl font-black mb-10 tracking-tight text-teal-400 uppercase">
-                        KOON<span className="text-white"> SYSTEM</span>
-                    </h1>
-                )}
 
-                <nav className="space-y-2 flex-1">
-                    <button
-                        onClick={() => setVistaActual('profile')}
-                        className={`w-full flex items-center gap-3 p-3 rounded-xl transition text-sm font-medium ${vistaActual === 'profile'
-                            ? 'bg-white/10 border-l-4 border-teal-400 font-bold shadow-lg text-white'
-                            : 'hover:bg-white/5 text-white'
-                            }`}
-                    >
-                        <FaUser className={vistaActual === 'profile' ? 'text-teal-400' : ''} />
-                        Mi Perfil
-                    </button>
-                    <button
-                        onClick={() => setVistaActual('pagadores')}
-                        className={`w-full flex items-center gap-3 p-3 rounded-xl transition text-sm font-medium ${vistaActual === 'pagadores'
-                            ? 'bg-white/10 border-l-4 border-teal-400 font-bold shadow-lg text-white'
-                            : 'hover:bg-white/5 text-white'
-                            }`}
-                    >
-                        <FaUsers className={vistaActual === 'pagadores' ? 'text-teal-400' : ''} />
-                        Mis Clientes
-                    </button>
-
-                    <button
-                        onClick={() => setVistaActual('reporte')}
-                        className={`w-full flex items-center gap-3 p-3 rounded-xl transition text-sm font-medium ${vistaActual === 'reporte'
-                            ? 'bg-white/10 border-l-4 border-teal-400 font-bold shadow-lg text-white'
-                            : 'hover:bg-white/5 text-white'
-                            }`}
-                    >
-                        <FaFileInvoiceDollar className={vistaActual === 'reporte' ? 'text-teal-400' : ''} />
-                        Reporte de Pagos
-                    </button>
-                </nav>
-                <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-3 p-3 text-red-300 hover:text-white transition-colors text-xs font-bold border-t border-white/10 pt-6 uppercase tracking-widest"
-                >
-                    <FaSignOutAlt /> SALIR
-                </button>
-            </aside>
+            {/* 1. EL SIDEBAR COMPONENTE */}
+            <KoonSidebar
+                vistaActual={vistaActual}
+                setVistaActual={setVistaActual}
+                clienteInfo={clienteInfo}
+                handleLogout={handleLogout}
+                getLogoUrl={getLogoUrl}
+            />
 
             {/* MAIN CONTENT */}
-            <main className="flex-1 ml-72">
+            <main className="flex-1 ml-64 transition-all duration-300">
                 {vistaActual === 'pagadores' ? (
                     <>
                         <header className="sticky top-0 z-50 flex items-center justify-between gap-4 px-6 py-4 bg-[#064760] backdrop-blur-md border-[#a8c6d4] shadow-sm mb-6">

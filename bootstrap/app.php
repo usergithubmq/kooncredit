@@ -18,7 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // 2. Solo dejamos excepciones para servicios externos (Webhooks)
         // QUITAMOS 'login', 'register', 'api/*', etc.
         $middleware->validateCsrfTokens(except: [
+            'api/*',
             'api/stp/webhook/abono',
+            'login',
         ]);
 
         $middleware->alias([

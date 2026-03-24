@@ -18,14 +18,11 @@ class EndUserController extends Controller
     {
         $user = Auth::user();
 
-        // Verificamos que el usuario tenga un perfil de cliente asociado
         if (!$user->cliente) {
             return response()->json(['data' => [], 'message' => 'Sin empresa asociada'], 200);
         }
 
         try {
-            // 1. Quitamos 'name' y 'email' del select porque ya no existen en la tabla end_users
-            // 2. Cargamos la relación 'user' para obtener esos datos
             $pagadores = $user->cliente->endUsers()
                 ->with('user')
                 ->select('id', 'user_id', 'cliente_id', 'clabe_stp', 'referencia_interna', 'is_active', 'created_at')
@@ -34,8 +31,8 @@ class EndUserController extends Controller
                 ->map(function ($endUser) {
                     return [
                         'id'                 => $endUser->id,
-                        'name'               => $endUser->user->name ?? 'N/A', // Viene de la tabla users
-                        'email'              => $endUser->user->email ?? 'N/A', // Viene de la tabla users
+                        'name'               => $endUser->user->name ?? 'N/A',
+                        'email'              => $endUser->user->email ?? 'N/A',
                         'clabe_stp'          => $endUser->clabe_stp,
                         'referencia_interna' => $endUser->referencia_interna,
                         'is_active'          => $endUser->is_active,
@@ -56,36 +53,55 @@ class EndUserController extends Controller
 
     public function validatePagador(Request $request)
     {
-        // 1. Usa variables de entorno (configúralas en tu .env)
-        $user = env('NUBARIUM_USER');
-        $pass = env('NUBARIUM_PASS');
-        $value = strtoupper(trim($request->value));
-
         try {
+            $user = env('NUBARIUM_USER');
+            $pass = env('NUBARIUM_PASS');
+
+            if (!$request->value) {
+                return response()->json(['success' => false, 'message' => 'RFC no proporcionado'], 400);
+            }
+
+            $rfc = strtoupper(trim($request->value));
+
+            // BYPASS PARA DESARROLLO LOCAL
+            if (env('APP_ENV') === 'local') {
+                return response()->json([
+                    'success' => true,
+                    'status'  => 200,
+                    'data'    => [
+                        'rfc' => $rfc,
+                        'datosIdentificacion' => [
+                            'nombres' => 'USUARIO PRUEBA ' . rand(1, 99),
+                            'apellidoPaterno' => 'KOON',
+                            'apellidoMaterno' => 'SYSTEM',
+                            'curp' => 'MOCK' . rand(1000, 9999) . 'HDF' . rand(10, 99)
+                        ],
+                        'datosUbicacion' => [
+                            'cp' => '06000',
+                            'entidadFederativa' => 'CIUDAD DE MÉXICO',
+                            'municipioDelegacion' => 'CUAUHTÉMOC'
+                        ]
+                    ]
+                ], 200);
+            }
+
+            // LLAMADA REAL A NUBARIUM
             $response = Http::withHeaders([
                 'Authorization' => 'Basic ' . base64_encode($user . ':' . $pass),
                 'Accept'        => 'application/json',
-                'Content-Type'  => 'application/json',
-            ])->post('https://api.nubarium.com/renapo/v2/valida_curp', [
-                'curp'      => $value,
-                'documento' => '0'
+            ])->post('https://api.nubarium.com/sat/v1/consultar_cif', [
+                'rfc'  => $rfc,
+                'tipo' => 'datos'
             ]);
 
-            // 2. Registro de depuración para ver qué dice Nubarium
-            if ($response->status() === 403) {
-                Log::critical('Nubarium denegó el acceso (403). Cuerpo de respuesta: ' . $response->body());
-            }
-
-            // 3. Devolvemos el estatus real
             return response()->json([
                 'success' => $response->successful(),
                 'status'  => $response->status(),
-                'error'   => $response->failed() ? $response->body() : null, // Captura el error real
-                'data'    => $response->successful() ? $response->json() : null
+                'data'    => $response->json()
             ], $response->status());
         } catch (\Exception $e) {
-            Log::error('Error de conexión en validatePagador: ' . $e->getMessage());
-            return response()->json(['error' => 'Error interno de conexión'], 500);
+            Log::error("Error en validatePagador: " . $e->getMessage());
+            return response()->json(['success' => false, 'error' => 'Error de conexión'], 500);
         }
     }
 
@@ -94,74 +110,50 @@ class EndUserController extends Controller
         $user = Auth::user();
         $cliente = $user->cliente;
 
-        if (!$cliente) return response()->json(['error' => 'No tienes una empresa asociada.'], 422);
-
-        // Validación de tronco de CLABE
-        $tronco = $cliente->clabe_stp_intermedia;
-        if (!$tronco) return response()->json(['error' => 'El cliente no tiene un tronco de CLABE configurado.'], 422);
-
-        // VALIDACIÓN: Aquí es donde salta el 422
-        $request->validate([
-            'name'  => 'required|string|max:255',
-            // Cambiamos unique por una validación más descriptiva o la manejamos en el try
-            'email' => 'required|email',
-            'referencia_interna' => 'nullable|string|max:50',
-            'document_value' => 'required|string'
-        ]);
-
-        // Verificar si el email ya existe manualmente para dar un error más claro
-        if (\App\Models\User::where('email', $request->email)->exists()) {
-            return response()->json(['error' => 'Este correo electrónico ya está registrado en el sistema.'], 422);
-        }
-
         try {
-            $resultado = DB::transaction(function () use ($request, $cliente, $tronco) {
-                // 1. Crear el usuario de acceso a la APP
-                $nuevoAcceso = \App\Models\User::create([
-                    'name'     => $request->name,
-                    'email'    => $request->email,
-                    'password' => Hash::make($request->document_value), // Su CURP es su pass temporal
-                    'role'     => 'analista',
+            return DB::transaction(function () use ($request, $cliente) {
+                // A. Crear Usuario con lo que viene del Form
+                $nuevoUsuario = User::create([
+                    'name'       => $request->name,
+                    'first_last' => $request->first_last,
+                    'email'      => $request->email,
+                    'password'   => Hash::make($request->document_value),
+                    'role'       => 'cliente_final',
+                    'rfc'        => strtoupper($request->document_value),
                 ]);
 
-                // 2. Generar CLABE STP
+                // B. Generar CLABE
+                $tronco = $cliente->clabe_stp_intermedia;
                 $consecutivo = str_pad(($cliente->endUsers()->count() + 1), 4, '0', STR_PAD_LEFT);
                 $clabe17 = $tronco . $consecutivo;
-                $digitoVerificador = $this->calcularDigitoVerificador($clabe17);
-                $clabeCompleta = $clabe17 . $digitoVerificador;
+                $clabeCompleta = $clabe17 . $this->calcularDigitoVerificador($clabe17);
 
-                // 3. Crear el EndUser vinculado
-                $endUser = EndUser::create([
+                // C. Crear EndUser con TU REFERENCIA
+                $contrato = EndUser::create([
                     'cliente_id'         => $cliente->id,
-                    'user_id'            => $nuevoAcceso->id,
+                    'user_id'            => $nuevoUsuario->id,
                     'clabe_stp'          => $clabeCompleta,
-                    'referencia_interna' => $request->referencia_interna,
-                    'document_value'     => $request->document_value, // Asegúrate de tener esta columna o quítala
+                    'referencia_interna' => $request->referencia_interna, // <--- AQUÍ SE GUARDA TU DATO REAL
                     'is_active'          => true,
                 ]);
 
-                return $endUser;
+                // Devolvemos el objeto para que React lo reciba
+                return response()->json([
+                    'success' => true,
+                    'data'    => $contrato
+                ], 201);
             });
-
-            return response()->json([
-                'message' => 'Pagador y Acceso generados con éxito.',
-                'pagador' => $resultado,
-                'user_id' => $resultado->user_id
-            ], 201);
         } catch (\Exception $e) {
-            Log::error('Error en Store EndUser: ' . $e->getMessage());
-            return response()->json(['error' => 'Error interno: ' . $e->getMessage()], 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    /**
-     * Algoritmo de Dígito Verificador CLABE (Módulo 10 Ponderado)
-     */
     private function calcularDigitoVerificador($clabe17)
     {
         $pesos = [3, 7, 1];
         $suma = 0;
         foreach (str_split($clabe17) as $key => $digito) {
+            if (!is_numeric($digito)) continue;
             $suma += ($digito * $pesos[$key % 3]) % 10;
         }
         return (10 - ($suma % 10)) % 10;

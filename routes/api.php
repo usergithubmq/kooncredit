@@ -5,13 +5,22 @@ use Illuminate\Support\Facades\Route;
 
 // Controladores
 use App\Http\Controllers\Api\EnrolamientoController;
+
 use App\Http\Controllers\Auth\PhoneVerificationController;
+use App\Http\Controllers\Auth\LoginController;
+
 use App\Http\Controllers\Admin\ClientController;
+
+use App\Http\Controllers\Cliente\ProfileController;
 use App\Http\Controllers\Cliente\EndUserController;
 use App\Http\Controllers\Cliente\PlanPagoController;
+use App\Http\Controllers\Cliente\UserWalletController;
+
 use App\Http\Controllers\ReporteController;
+
 use App\Http\Controllers\Onboarding\LivenessController;
 use App\Http\Controllers\Onboarding\IneController;
+
 use App\Http\Controllers\Stp\StpWebhookController;
 
 /*
@@ -20,11 +29,28 @@ use App\Http\Controllers\Stp\StpWebhookController;
 |--------------------------------------------------------------------------
 */
 
+// 1. IMPORTANTE: Registramos las rutas de login aquí para que sean públicas
+// Esto cargará lo que tienes en auth.php
+require __DIR__ . '/auth.php';
+
 // Webhook externo (Sin Auth)
 Route::post('/stp/webhook/abono', [StpWebhookController::class, 'recibirAbono']);
 
 
 Route::middleware('auth:sanctum')->group(function () {
+
+    Route::get('/user', function (Request $request) {
+        $user = $request->user()->load(['cliente', 'paymentPlan']);
+
+        return response()->json([
+            'id'         => $user->id,
+            'name'       => $user->name,
+            'email'      => $user->email,
+            'cuenta_beneficiario' => $user->paymentPlan->cuenta_beneficiario ?? 'SIN ASIGNAR',
+            'cliente'    => $user->cliente,
+            'plan'       => $user->paymentPlan
+        ]);
+    });
 
     Route::post('/enrolar', [EnrolamientoController::class, 'registrar']);
 
@@ -39,6 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // Gestión de Perfil
         Route::get('/profile', [ClientController::class, 'getProfile']);
         Route::post('/profile-update', [ClientController::class, 'updateProfile']);
+        Route::post('/change-password', [ProfileController::class, 'changePassword']);
 
         // Pagadores Finales
         Route::post('/validate-pagador', [EndUserController::class, 'validatePagador']);
@@ -68,7 +95,23 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/phone/verify', [PhoneVerificationController::class, 'verify']);
     });
 
-    Route::get('/user', function (Request $request) {
-        return $request->user()->load(['cliente']);
+    // 4. APP MÓVIL - CLIENTE FINAL (KoonPay / UserWallet)
+    Route::middleware(['auth:sanctum', 'role:cliente_final'])->prefix('my')->group(function () {
+
+        // Dashboard Principal: Saldo, CLABE y Estatus
+        Route::get('/dashboard', [UserWalletController::class, 'getDashboard']);
+
+        // Finanzas e Historial (Lo que ya tienes en la tabla stp_abonos)
+        Route::get('/payments', [UserWalletController::class, 'getPaymentHistory']);
+
+        // Pasarela de Pagos (Para integrar Stripe/Checkout más tarde)
+        // Route::post('/generate-checkout', [UserWalletController::class, 'createCheckoutSession']);
+
+        // Perfil y Onboarding (Reutilizando tus controladores de validación)
+        Route::get('/profile', [ProfileController::class, 'getProfile']);
+        Route::prefix('verification')->group(function () {
+            Route::post('/liveness', [LivenessController::class, 'store']);
+            Route::post('/ine', [IneController::class, 'upload']);
+        });
     });
 });

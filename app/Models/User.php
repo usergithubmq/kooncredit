@@ -16,11 +16,30 @@ class User extends Authenticatable
         'first_last',
         'second_last',
         'email',
-        'role',
-        'password',
+        'rfc',
+        'curp',
+        'cif',
+        'fecha_nacimiento',
+        'situacion_contribuyente',
+        'cp',
+        'entidad_federativa',
+        'municipio_delegacion',
+        'colonia',
+        'calle',
+        'num_exterior',
+        'num_interior',
+        'liveness_verified',
+        'ine_front',
+        'ine_back',
+        'ine_verified',
+        'address_selfie',
+        'address_verified',
+        'onboarding_status',
         'phone',
         'phone_verification_code',
         'phone_verified_at',
+        'role',
+        'password',
     ];
 
     protected $hidden = [
@@ -34,6 +53,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'phone_verified_at' => 'datetime',
+            'fecha_nacimiento'  => 'date',
             'password' => 'hashed',
         ];
     }

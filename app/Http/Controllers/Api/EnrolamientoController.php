@@ -16,7 +16,6 @@ class EnrolamientoController extends Controller
 {
     public function registrar(Request $request)
     {
-        // 1. Validación de entrada
         $request->validate([
             'referencia_contrato' => 'required|string',
             'rfc'                 => 'required|string',
@@ -25,34 +24,47 @@ class EnrolamientoController extends Controller
             'email'               => 'required|email|unique:users,email',
         ]);
 
-        // 2. Identificar a la empresa que llama a la API (el cliente logueado)
         $empresa = auth()->user()->cliente;
         if (!$empresa || !$empresa->clabe_stp_intermedia) {
-            return response()->json(['error' => 'Configuración de CLABE incompleta para esta empresa.'], 422);
+            return response()->json(['error' => 'Configuración de CLABE incompleta.'], 422);
         }
 
         try {
             return DB::transaction(function () use ($request, $empresa) {
+                // 1. CONSULTA NUBARIUM SAT
+                $fiscalData = $this->obtenerDatosSat($request->rfc);
+                $idData = $fiscalData['datosIdentificacion'] ?? [];
+                $locData = $fiscalData['datosUbicacion'] ?? [];
 
-                // 3. CONSULTA NUBARIUM (Validar Identidad)
-                $nombreReal = $this->obtenerNombreDesdeNubarium($request->rfc);
-
-                // 4. CREAR USUARIO DE ACCESO
+                // 2. CREAR USUARIO CON NUEVA ESTRUCTURA
                 $passwordProvisional = strtoupper($request->rfc);
                 $nuevoUsuario = User::create([
-                    'name'     => $nombreReal,
-                    'email'    => strtolower($request->email),
-                    'password' => Hash::make($passwordProvisional),
-                    'role'     => 'analista',
+                    'name'                    => $idData['nombres'] ?? 'USUARIO',
+                    'first_last'              => $idData['apellidoPaterno'] ?? 'REGISTRADO',
+                    'second_last'             => $idData['apellidoMaterno'] ?? null,
+                    'email'                   => strtolower($request->email),
+                    'rfc'                     => strtoupper($request->rfc),
+                    'curp'                    => $idData['curp'] ?? null,
+                    'cif'                     => $fiscalData['cif'] ?? null,
+                    'situacion_contribuyente' => $idData['situacionContribuyente'] ?? null,
+                    'cp'                      => $locData['cp'] ?? null,
+                    'entidad_federativa'      => $locData['entidadFederativa'] ?? null,
+                    'municipio_delegacion'    => $locData['municipioDelegacion'] ?? null,
+                    'colonia'                 => $locData['colonia'] ?? null,
+                    'calle'                   => $locData['nombreVialidad'] ?? null,
+                    'num_exterior'            => $locData['numeroExterior'] ?? null,
+                    'num_interior'            => $locData['numeroInterior'] ?? null,
+                    'password'                => Hash::make($passwordProvisional),
+                    'role'                    => 'cliente_final',
                 ]);
 
-                // 5. GENERAR CLABE ÚNICA (KoonSystem Engine)
+                // 3. GENERAR CLABE STP
                 $tronco = $empresa->clabe_stp_intermedia;
                 $consecutivo = str_pad(($empresa->endUsers()->count() + 1), 4, '0', STR_PAD_LEFT);
                 $clabe17 = $tronco . $consecutivo;
                 $clabeCompleta = $clabe17 . $this->calcularDigitoVerificador($clabe17);
 
-                // 6. CREAR ENDUSER (Vínculo financiero)
+                // 4. CREAR ENDUSER
                 EndUser::create([
                     'cliente_id'         => $empresa->id,
                     'user_id'            => $nuevoUsuario->id,
@@ -61,7 +73,7 @@ class EnrolamientoController extends Controller
                     'is_active'          => true,
                 ]);
 
-                // 7. CREAR PLAN DE PAGO
+                // 5. CREAR PLAN DE PAGO
                 PaymentPlan::create([
                     'user_id'             => $nuevoUsuario->id,
                     'cuenta_beneficiario' => $clabeCompleta,
@@ -75,38 +87,33 @@ class EnrolamientoController extends Controller
                 return response()->json([
                     'status' => 'success',
                     'data'   => [
-                        'name'                => $nombreReal,
+                        'name' => ($idData['nombres'] ?? 'USUARIO') . ' ' . ($idData['apellidoPaterno'] ?? ''),
                         'cuenta_beneficiario' => $clabeCompleta,
-                        'referencia_contrato' => $request->referencia_contrato,
-                        'email'               => strtolower($request->email),
-                        'password'            => $passwordProvisional
+                        'password' => $passwordProvisional
                     ]
                 ], 201);
             });
         } catch (\Exception $e) {
             Log::error('Error Enrolamiento API: ' . $e->getMessage());
-            return response()->json(['status' => 'error', 'message' => 'Error interno: ' . $e->getMessage()], 500);
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 
-    private function obtenerNombreDesdeNubarium($rfc)
+    private function obtenerDatosSat($rfc)
     {
         try {
             $response = Http::withHeaders([
                 'Authorization' => 'Basic ' . base64_encode(env('NUBARIUM_USER') . ':' . env('NUBARIUM_PASS')),
-            ])->post('https://api.nubarium.com/renapo/v2/valida_curp', [
-                'curp' => $rfc,
-                'documento' => '0'
+            ])->post('https://api.nubarium.com/sat/v1/consultar_cif', [
+                'rfc'  => strtoupper(trim($rfc)),
+                'tipo' => 'datos'
             ]);
 
-            if ($response->successful()) {
-                $d = $response->json();
-                return strtoupper(($d['data']['nombre'] ?? 'USUARIO') . ' ' . ($d['data']['apellido_paterno'] ?? 'REGISTRADO'));
-            }
+            return $response->successful() ? $response->json() : [];
         } catch (\Exception $e) {
-            Log::warning('Fallo Nubarium, usando nombre genérico: ' . $e->getMessage());
+            Log::warning('Fallo Nubarium SAT: ' . $e->getMessage());
+            return [];
         }
-        return "USUARIO REGISTRADO";
     }
 
     private function calcularDigitoVerificador($clabe17)

@@ -93,7 +93,7 @@ export default function BalanceModal({ isOpen, onClose, user }) {
                     <div className="overflow-y-auto custom-scrollbar bg-slate-50/50">
                         {/* 1. Resumen de Bolsa Única */}
                         {resumen && (
-                            <div className="px-7 pt-7 grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <div className="px-7 pt-7 grid grid-cols-2 md:grid-cols-2 gap-4">
                                 <div className="p-4 rounded-[1.5rem] border bg-white border-slate-100 shadow-sm">
                                     <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Monto Acumulado</p>
                                     <p className="text-lg font-black text-emerald-600">{formatMXN(resumen.monto_acumulado)}</p>
@@ -101,10 +101,6 @@ export default function BalanceModal({ isOpen, onClose, user }) {
                                 <div className="p-4 rounded-[1.5rem] border bg-white border-slate-100 shadow-sm">
                                     <p className="text-[10px] font-black uppercase text-red-700 mb-1">Cargos Moratoria</p>
                                     <p className="text-lg font-black text-red-700">{formatMXN(resumen.moratoria)}</p>
-                                </div>
-                                <div className="hidden md:block p-4 rounded-[1.5rem] border bg-white border-slate-100 shadow-sm">
-                                    <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Progreso</p>
-                                    <p className="text-lg font-black text-blue-600">{resumen.progreso}%</p>
                                 </div>
                             </div>
                         )}
