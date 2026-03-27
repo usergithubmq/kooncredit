@@ -98,7 +98,7 @@ const KoonSidebar = ({ vistaActual, setVistaActual, handleLogout, clienteInfo })
             {/* NAVEGACIÓN */}
             <motion.nav initial="hidden" animate="visible" className="flex-1 px-4 space-y-2">
                 <div className="px-4 mb-4 text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Finanzas</div>
-                <NavButton id="dashboard" icon={FaWallet} label="Mi Billetera" />
+                <NavButton id="dashboard" icon={FaWallet} label="Mis pagos" />
                 <NavButton id="history" icon={FaHistory} label="Movimientos" />
 
                 <div className="pt-8 px-4 mb-4 text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Cuenta</div>

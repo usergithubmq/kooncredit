@@ -3,37 +3,24 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue; // <--- 1. AGREGAR ESTO
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-// 2. AGREGAR "implements ShouldQueue" AQUÍ
-class BienvenidoPagadorMail extends Mailable implements ShouldQueue
+class BienvenidoPagadorMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $user;
-    public $cliente;
+    public $datos;
 
-    public function __construct($user, $cliente)
+    public function __construct($datos)
     {
-        $this->user = $user;
-        $this->cliente = $cliente;
+        $this->datos = $datos;
     }
 
-    public function envelope(): Envelope
+    public function build()
     {
-        return new Envelope(
-            subject: 'Acceso a tu Terminal de Pagos - ' . ($this->cliente->nombre_comercial ?? 'KoonPay'),
-        );
-    }
-
-    public function content(): Content
-    {
-        return new Content(
-            view: 'emails.bienvenida',
-        );
+        return $this->from(config('mail.from.address'), config('mail.from.name'))
+            ->subject('Bienvenido a KoonPay - Activación de Cuenta')
+            ->view('emails.bienvenida');
     }
 }

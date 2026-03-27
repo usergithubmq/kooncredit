@@ -1,4 +1,3 @@
-// src/pages/end_user/Dashboard.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -7,6 +6,10 @@ import { motion } from 'framer-motion';
 import BalanceCard from './components/BalanceCard';
 import PaymentStatus from './components/PaymentStatus';
 import KoonSidebar from "./components/KoonSidebar";
+import BrandCarousel from './components/BrandCarousel';
+import CheckoutButton from './components/CheckoutButton';
+
+import PaymentModal from './components/modal/PaymentModal';
 
 const Dashboard = () => {
     const navigate = useNavigate();
@@ -14,8 +17,6 @@ const Dashboard = () => {
     const [vistaActual, setVistaActual] = useState('dashboard');
     const [userName, setUserName] = useState("Usuario");
     const [loading, setLoading] = useState(true);
-
-    // Estado para la info de branding (Logo y Nombre de la empresa)
     const [clienteInfo, setClienteInfo] = useState(null);
 
     const [wallet, setWallet] = useState({
@@ -25,21 +26,21 @@ const Dashboard = () => {
         proximo_vencimiento: 'N/A'
     });
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     const handleLogout = () => {
         localStorage.clear();
         navigate('/login');
     };
 
     useEffect(() => {
-        // 1. Recuperar info del usuario local
         const savedUser = JSON.parse(localStorage.getItem("user"));
         if (savedUser) {
-            const full = `${savedUser.name || ''} ${savedUser.first_last || ''} ${savedUser.second_last || ''}`.trim();
+            const full = `${savedUser.name || ''} ${savedUser.first_last || ''}`.trim();
             const formatted = full.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
             setUserName(formatted || "Usuario");
         }
 
-        // 2. Fetch de datos desde el backend
         const fetchDashboardData = async () => {
             try {
                 const token = localStorage.getItem("token");
@@ -48,10 +49,7 @@ const Dashboard = () => {
                 });
 
                 if (response.data.status === 'success') {
-                    // Seteamos datos financieros
                     setWallet(response.data.data);
-
-                    // Seteamos info de branding para el Sidebar
                     if (response.data.data.empresa) {
                         setClienteInfo(response.data.data.empresa);
                     }
@@ -77,8 +75,7 @@ const Dashboard = () => {
     );
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] flex">
-            {/* 1. SIDEBAR - Ahora recibe la prop clienteInfo */}
+        <div className="min-h-screen bg-[#f8fafc] flex overflow-x-hidden">
             <KoonSidebar
                 vistaActual={vistaActual}
                 setVistaActual={setVistaActual}
@@ -86,9 +83,8 @@ const Dashboard = () => {
                 clienteInfo={clienteInfo}
             />
 
-            {/* MAIN CONTENT */}
             <main className="flex-1 ml-64 transition-all duration-300">
-                <div className="mx-auto max-w-5xl">
+                <div className="mx-auto max-w-5xl px-8 pb-12">
                     {/* Header de bienvenida */}
                     <header className="my-12 flex items-center justify-between">
                         <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
@@ -98,58 +94,80 @@ const Dashboard = () => {
                             <div className="flex items-center gap-2 mt-1">
                                 <span className="h-1.5 w-1.5 rounded-full bg-teal-500 animate-pulse"></span>
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                                    {clienteInfo?.nombre ? ` ${clienteInfo.nombre}` : 'B2C Node'} <span className="opacity-30"></span>
+                                    {clienteInfo?.nombre ? ` ${clienteInfo.nombre}` : 'B2C Node'}
                                 </p>
                             </div>
                         </motion.div>
 
-                        {/* Avatar con iniciales */}
                         <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-slate-800 to-black shadow-xl flex items-center justify-center border border-white/10 text-white font-bold text-xl">
                             {userName.charAt(0)}
                         </div>
                     </header>
 
-                    <div className="grid gap-8 lg:grid-cols-12">
-                        {/* Columna Izquierda: La Tarjeta */}
-                        <div className="lg:col-span-7">
+                    {/* Grid Principal */}
+                    <div className="grid gap-10 lg:grid-cols-12 items-start">
+
+                        {/* Columna Izquierda (7/12) */}
+                        <div className="lg:col-span-7 space-y-8">
                             <BalanceCard saldo={wallet.saldo} clabe={wallet.clabe} />
+
+                            {/* Carrusel dentro de la columna para no romper el grid */}
+                            <div>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 ml-2">
+                                    Paga en efectivo en:
+                                </p>
+                                <BrandCarousel />
+                            </div>
                         </div>
 
-                        {/* Columna Derecha: Info y Acciones */}
-                        <div className="flex flex-col gap-6 lg:col-span-5">
-                            <PaymentStatus
+                        {/* Columna Derecha (5/12) */}
+                        <div className="lg:col-span-5 flex flex-col gap-6">
+                            {/* <PaymentStatus
                                 monto={wallet.pago_pendiente}
                                 fecha={wallet.proximo_vencimiento}
+                            /> */}
+
+                            <CheckoutButton
+                                monto={wallet.pago_pendiente}
+                                clienteNombre={clienteInfo?.nombre}
+                                onOpenModal={() => setIsModalOpen(true)} // <-- Nueva prop
                             />
 
-                            {/* Banner de soporte dinámico */}
-                            <div className="flex-1 rounded-[2rem] bg-gradient-to-br from-teal-500 to-emerald-600 p-8 text-white shadow-lg relative overflow-hidden">
+                            <PaymentModal
+                                isOpen={isModalOpen}
+                                onClose={() => setIsModalOpen(false)}
+                                monto={wallet.pago_pendiente}
+                                clienteNombre={clienteInfo?.nombre}
+                            />
+
+                            {/* Banner de soporte */}
+                            <div className="rounded-[2rem] bg-gradient-to-br from-[#0c516e] to-[#164e63] p-8 text-white shadow-lg relative overflow-hidden">
                                 <div className="relative z-10">
-                                    <h3 className="text-xl font-bold mb-2">¿Necesitas ayuda?</h3>
-                                    <p className="text-sm opacity-90 leading-relaxed mb-4">
-                                        El equipo de {clienteInfo?.nombre || 'KoonPay'} está disponible para ayudarte con tus pagos.
+                                    <h3 className="text-xl font-bold mb-2 tracking-tight">¿Necesitas ayuda?</h3>
+                                    <p className="text-sm opacity-80 leading-relaxed mb-6">
+                                        El equipo de {clienteInfo?.nombre || 'KoonPay'} está disponible para asistirte.
                                     </p>
-                                    <button className="text-[10px] font-black uppercase tracking-widest bg-black/20 px-4 py-2 rounded-lg hover:bg-black/30 transition-all">
+                                    <button className="text-[10px] font-black uppercase tracking-widest bg-white/10 px-6 py-3 rounded-xl hover:bg-white/20 transition-all border border-white/10">
                                         Contactar Soporte
                                     </button>
                                 </div>
-                                <div className="absolute bottom-[-20%] right-[-10%] opacity-20 text-[10rem] font-black italic select-none uppercase">
+                                <div className="absolute bottom-[-20%] right-[-10%] opacity-10 text-[10rem] font-black italic select-none uppercase pointer-events-none">
                                     {clienteInfo?.nombre?.split(' ')[0] || 'KOON'}
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Footer de Movimientos */}
+                    {/* Footer / Ver Historial */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.5 }}
-                        className="mt-12 flex justify-center"
+                        className="mt-16 flex justify-center"
                     >
                         <button
                             onClick={() => setVistaActual('history')}
-                            className="group flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 hover:text-blue-600 transition-all"
+                            className="group flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 hover:text-[#0c516e] transition-all"
                         >
                             <span>Ver Historial de Movimientos</span>
                             <span className="group-hover:translate-x-2 transition-transform">→</span>
