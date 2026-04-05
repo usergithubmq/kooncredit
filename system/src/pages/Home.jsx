@@ -13,10 +13,10 @@ const Home = () => {
         <div className="home-wrapper">
             <Header />
             <div className="denar-logo-hero">
-                <img src="./../../public/denarTexto.png" alt="Denar Logo" />
+                <img src="/denarTexto.png" alt="Denar Logo" />
             </div>
             <video autoPlay muted loop playsInline id="bg-video">
-                <source src="./../../public/video/us.mp4" type="video/mp4" />
+                <source src="/video/us.mp4" type="video/mp4" />
             </video>
             <canvas id="webgl-canvas"></canvas>
             <div id="scene-strip">
