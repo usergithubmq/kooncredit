@@ -191,7 +191,7 @@ export default function StpAccountsTable({
                 <div className="bg-gradient-to-r from-[#051d26] to-[#04364b] rounded-2xl p-4 shadow-lg transform hover:scale-105">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-white text-xs font-normal uppercase tracking-wider">Total Crédito</p>
+                            <p className="text-white text-xs font- uppercase tracking-wider">Total Crédito</p>
                             <p className="text-white text-2xl font-normal mt-1">{formatMonto(resumen.totalCredito)}</p>
                         </div>
                         <FaWallet className="text-[#3d9e9d] text-3xl opacity-80" />

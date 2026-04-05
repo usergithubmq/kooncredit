@@ -29,6 +29,7 @@ class PaymentPlan extends Model
         'fecha_limite_habil',
 
         'estado',
+
         'monto_pagado_acumulado',
         'fecha_pago_real'
     ];
