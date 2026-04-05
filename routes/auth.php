@@ -13,8 +13,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // 1. Login SIN middleware 'guest' para evitar el Redireccionamiento (302)
-Route::post('/login', [LoginController::class, 'login'])->name('login');
-
+Route::post('/login', [LoginController::class, 'login']);
 // 2. Rutas para invitados reales (Registro y Recuperación)
 Route::middleware('guest')->group(function () {
     Route::post('/register', [RegisterController::class, 'register'])
