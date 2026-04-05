@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const baseURL = import.meta.env.MODE === 'production'
-    ? 'https://app.koonfinansen.com.mx'
+    ? 'https://app.denar.network'
     : 'http://localhost:8000';
 
 // Configuración unificada para manejar credenciales y tokens automáticamente
