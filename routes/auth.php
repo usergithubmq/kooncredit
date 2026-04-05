@@ -12,22 +12,20 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// 1. Login SIN middleware 'guest' para evitar el Redireccionamiento (302)
+// 1. Login (Sin nombre para evitar colisión con Fortify/Laravel)
 Route::post('/login', [LoginController::class, 'login']);
-// 2. Rutas para invitados reales (Registro y Recuperación)
+
+// 2. Rutas para invitados (Sin nombres para evitar duplicidad)
 Route::middleware('guest')->group(function () {
-    Route::post('/register', [RegisterController::class, 'register'])
-        ->name('register');
+    Route::post('/register', [RegisterController::class, 'register']);
 
-    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
-        ->name('password.email');
+    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store']);
 
-    Route::post('/reset-password', [NewPasswordController::class, 'store'])
-        ->name('password.store');
+    // Si tu frontend envía el token para resetear:
+    Route::post('/reset-password', [NewPasswordController::class, 'store']);
 });
 
-// 3. Rutas que requieren estar logueado (Sanctum)
+// 3. Rutas con Auth (Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [LoginController::class, 'logout'])
-        ->name('logout');
+    Route::post('/logout', [LoginController::class, 'logout']);
 });
