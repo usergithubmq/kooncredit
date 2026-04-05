@@ -19,6 +19,9 @@ return new class extends Migration {
             $table->string('nombre_legal')->nullable();
             $table->string('nombre_comercial')->nullable();
             $table->string('allowed_ip')->nullable();
+            $table->string('slug')->unique();
+            $table->string('primary_color')->default('#051d26');
+            $table->string('login_slogan')->nullable();
 
             // --- COMUNICACIÓN Y VALIDACIÓN TELEFÓNICA ---
             $table->string('phone')->nullable();

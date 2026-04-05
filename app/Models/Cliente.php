@@ -17,6 +17,10 @@ class Cliente extends Model
         'nombre_legal',
         'nombre_comercial',
         'allowed_ip',
+        'slug',
+        'primary_color',
+        'secondary_color',
+        'login_slogan',
 
         'phone',
         'phone_verification_code',

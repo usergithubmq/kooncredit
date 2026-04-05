@@ -84,12 +84,12 @@ const Conciliacion = () => {
                         <div className="flex flex-wrap items-center gap-12 flex-1">
                             {/* Gateway */}
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-[#0c516e] flex items-center justify-center shadow-xl shadow-blue-900/20 text-white">
+                                <div className="w-12 h-12 rounded-2xl bg-[#051d26] flex items-center justify-center shadow-xl shadow-blue-900/20 text-white">
                                     <Zap size={20} fill="currentColor" />
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Conexión Bancaria</span>
-                                    <span className="text-sm font-black text-slate-800 uppercase tracking-tighter">STP Directo Link</span>
+                                    <span className="text-sm font-black text-slate-800 uppercase tracking-tighter">Directo Link SPEI</span>
                                     <div className="flex items-center gap-1.5 mt-0.5">
                                         <Activity size={12} className="text-teal-500" />
                                         <span className="text-[10px] font-black text-teal-600 uppercase">Sincronizado</span>
@@ -185,7 +185,7 @@ const Conciliacion = () => {
                 {/* ÚLTIMOS MOVIMIENTOS - LISTA FLOTANTE */}
                 <motion.div
                     variants={cardVariants}
-                    className="bg-[#0c516e] p-10 rounded-[3rem] shadow-[20px_20px_60px_#d1d9e6] text-white flex flex-col relative overflow-hidden"
+                    className="bg-[#051d26] p-10 rounded-[3rem] shadow-[20px_20px_60px_#d1d9e6] text-white flex flex-col relative overflow-hidden"
                 >
                     <div className="relative z-10">
                         <h3 className="text-[11px] font-normal text-blue-200/50 uppercase tracking-[0.3em] mb-8">Movimientos Live</h3>

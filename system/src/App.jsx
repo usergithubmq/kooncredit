@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Home from "./pages/Home";
+import Docs from "./pages/Docs";
 import SelectPersonType from "./pages/SelectPersonType";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
@@ -26,9 +27,12 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
 
+        <Route path="/docs" element={<Docs />} />
+
         <Route path="/select-person-type" element={<SelectPersonType />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/login/:slug" element={<Login />} />
         <Route path="/verify-phone" element={<VerifyPhone />} />
 
         {/* Dashboards */}

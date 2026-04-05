@@ -25,7 +25,7 @@ return new class extends Migration
             $table->integer('numero_pago')->nullable();
             $table->integer('total_pagos')->nullable();
             $table->decimal('monto_normal', 15, 2)->nullable();
-            $table->decimal('moratoria', 15, 2)->nullable();
+            $table->decimal('moratoria', 15, 2)->default(0);
 
             // Fechas
             $table->date('fecha_vencimiento')->nullable();
@@ -40,7 +40,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->index('cuenta_beneficiario');
+            $table->index('cuenta_beneficiario'); // Para que el Dispatcher vuele al buscar la CLABE
             $table->index('estado');
         });
     }

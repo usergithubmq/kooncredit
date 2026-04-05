@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaBuilding, FaUser, FaCheckCircle, FaSpinner, FaSearch, FaExclamationTriangle } from "react-icons/fa";
+import { FaBuilding, FaUser, FaCheckCircle, FaSpinner, FaSearch, FaExclamationTriangle, FaFingerprint, FaShieldAlt } from "react-icons/fa";
 import api from "../../../api/axios";
 
 export default function ClientList() {
@@ -8,43 +8,28 @@ export default function ClientList() {
     const [search, setSearch] = useState("");
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        fetchClients();
-    }, []);
+    useEffect(() => { fetchClients(); }, []);
+
     const fetchClients = async () => {
         setLoading(true);
         try {
             const res = await api.get("/admin/clients");
             let rawData = res.data;
 
-            // --- LIMPIADOR DE "BASURA" PHP (Deprecated warnings) ---
-            // Si lo que recibimos es un string que contiene HTML, buscamos donde empieza el JSON '['
             if (typeof rawData === 'string' && rawData.includes('[{"')) {
-                try {
-                    const jsonStart = rawData.indexOf('[');
-                    rawData = JSON.parse(rawData.substring(jsonStart));
-                } catch (parseError) {
-                    console.error("Error al limpiar el JSON sucio:", parseError);
-                }
+                const jsonStart = rawData.indexOf('[');
+                rawData = JSON.parse(rawData.substring(jsonStart));
             }
 
-            console.log("DATOS LIMPIOS:", rawData);
-
-            // BLINDAJE: Verificamos si la data es un array o viene en .data
             const finalData = Array.isArray(rawData) ? rawData : (rawData.data || []);
-
             setClients(finalData);
             setError(null);
         } catch (err) {
-            console.error("ERROR AXIOS:", err.response);
-            setError("Error de conexión. Revisa la consola.");
+            setError("Error de comunicación con el nodo central.");
             setClients([]);
-        } finally {
-            setLoading(false);
-        }
+        } finally { setLoading(false); }
     };
 
-    // BLINDAJE: Siempre validamos que 'clients' sea un array antes de filtrar
     const filteredClients = Array.isArray(clients)
         ? clients.filter(c =>
             c.nombre_legal?.toLowerCase().includes(search.toLowerCase()) ||
@@ -53,86 +38,104 @@ export default function ClientList() {
         : [];
 
     if (loading) return (
-        <div className="flex flex-col items-center justify-center p-20 space-y-4">
-            <FaSpinner className="animate-spin text-teal-500 text-4xl" />
-            <p className="text-slate-400 font-medium animate-pulse">Cargando directorio de clientes...</p>
-        </div>
-    );
-
-    if (error) return (
-        <div className="bg-red-50 border border-red-100 p-8 rounded-[2rem] text-center">
-            <FaExclamationTriangle className="text-red-400 text-3xl mx-auto mb-4" />
-            <p className="text-red-700 font-bold">{error}</p>
-            <button onClick={fetchClients} className="mt-4 text-sm bg-red-100 text-red-700 px-4 py-2 rounded-xl hover:bg-red-200 transition-all font-bold">
-                Reintentar conexión
-            </button>
+        <div className="flex flex-col items-center justify-center p-24 space-y-6">
+            <div className="relative">
+                <div className="absolute inset-0 rounded-full blur-xl bg-teal-500/20 animate-pulse"></div>
+                <FaSpinner className="animate-spin text-teal-400 text-5xl relative z-10" />
+            </div>
+            <p className="text-slate-500 font-bold tracking-[0.2em] uppercase text-[10px]">Sincronizando Ledger...</p>
         </div>
     );
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
-            {/* Buscador Rápido */}
-            <div className="relative max-w-md">
-                <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                    type="text"
-                    placeholder="Buscar por nombre o RFC..."
-                    className="w-full pl-12 pr-4 py-3 rounded-2xl border border-slate-200 bg-white shadow-sm outline-none focus:ring-2 focus:ring-teal-500 transition-all"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
+        <div className="space-y-8 animate-in fade-in zoom-in-95 duration-700">
+
+            {/* Buscador Estilo Glassmorphism */}
+            <div className="relative max-w-xl group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-teal-500 to-[#0c516e] rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                <div className="relative flex items-center bg-[#051d26]/80 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden">
+                    <FaSearch className="ml-5 text-teal-500/50" />
+                    <input
+                        type="text"
+                        placeholder="Filtrar base de datos por Nombre o RFC..."
+                        className="w-full pl-4 pr-6 py-4 bg-transparent text-white placeholder-white outline-none text-sm font-medium"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </div>
             </div>
 
-            <div className="bg-white rounded-[2rem] shadow-xl border border-slate-200 overflow-hidden">
-                <div className="overflow-x-auto">
+            {/* Contenedor de Tabla High-Tech */}
+            <div className="bg-[#133a46] backdrop-blur-md rounded-[2rem] border border-white/5 shadow-2xl overflow-hidden relative">
+                {/* Brillo decorativo superior */}
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-teal-500/30 to-transparent"></div>
+
+                <div className="overflow-x-auto custom-scrollbar">
                     <table className="w-full text-left border-collapse">
-                        <thead className="bg-slate-50 border-b border-slate-100">
-                            <tr>
-                                <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Cliente</th>
-                                <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">RFC / Tipo</th>
-                                <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">CLABE Maestra</th>
-                                <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Estatus</th>
+                        <thead>
+                            <tr className="bg-[#051d26]">
+                                <th className="p-7 text-[11px] font-normal text-white uppercase tracking-[0.4em]">Identidad Digital</th>
+                                <th className="p-7 text-[11px] font-normal text-white uppercase tracking-[0.4em]">Protocolo Fiscal</th>
+                                <th className="p-7 text-[11px] font-normal text-white uppercase tracking-[0.4em]">STP (CLABE)</th>
+                                <th className="p-7 text-[11px] font-normal text-white uppercase tracking-[0.4em]">Estado del Nodo</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-white/[0.03]">
                             {filteredClients.length > 0 ? (
                                 filteredClients.map((client) => (
-                                    <tr key={client.id} className="hover:bg-slate-50/50 transition-colors">
-                                        <td className="p-6">
-                                            <div className="flex items-center gap-3">
-                                                <div className={`p-3 rounded-xl ${client.tipo_cliente === 'empresa' ? 'bg-purple-50 text-purple-600' : 'bg-teal-50 text-teal-600'}`}>
-                                                    {client.tipo_cliente === 'empresa' ? <FaBuilding /> : <FaUser />}
+                                    <tr key={client.id} className="group hover:bg-white/[0.02] transition-all duration-300">
+                                        <td className="p-7">
+                                            <div className="flex items-center gap-4">
+                                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:scale-110 ${client.tipo_cliente === 'empresa'
+                                                    ? 'bg-[#2e6259] text-[#60e2ff] border border-teal-500/20 shadow-[0_0_15px_rgba(20,184,166,0.1)]'
+                                                    : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                                                    }`}>
+                                                    {client.tipo_cliente === 'empresa' ? <FaBuilding className="text-xl" /> : <FaUser className="text-xl" />}
                                                 </div>
                                                 <div>
-                                                    <p className="font-bold text-slate-800 leading-none">{client.nombre_legal}</p>
-                                                    <p className="text-xs text-slate-400 mt-1">{client.user?.email || 'S/E'}</p>
+                                                    <p className="font-bold text-slate-200 text-sm tracking-wide group-hover:text-white transition-colors">
+                                                        {client.nombre_legal}
+                                                    </p>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <p className="text-[10px] text-slate-200 font-medium lowercase tracking-wider">{client.user?.email || 'no-auth'}</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="p-6">
-                                            <p className="text-sm font-mono font-bold text-slate-600">{client.rfc}</p>
-                                            <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md uppercase font-black">
-                                                {client.tipo_cliente === 'empresa' ? 'Moral' : 'Física'}
-                                            </span>
+                                        <td className="p-7">
+                                            <div className="flex flex-col gap-1.5">
+                                                <p className="text-[17px] font-mono font-black text-[#60e2ff] tracking-tighter">
+                                                    {client.rfc}
+                                                </p>
+                                                <span className="text-[10px] w-fit px-2 py-0.5 rounded bg-white/5 border border-white/5 text-slate-400 font-bold uppercase tracking-widest">
+                                                    {client.tipo_cliente === 'empresa' ? 'B2B Moral' : 'B2C Física'}
+                                                </span>
+                                            </div>
                                         </td>
-                                        <td className="p-6 font-mono text-xs text-[#0c516e] font-bold">
-                                            {client.clabe_stp ? (
-                                                client.clabe_stp.replace(/^(\d{3})(\d{3})(\d{4})(\d{3})(\d{4})(\d{1})$/, '$1 $2 $3 $4 $5 $6')
-                                            ) : (
-                                                <span className="text-slate-300 italic">PENDIENTE</span>
-                                            )}
+                                        <td className="p-7">
+                                            <div className="group/clabe relative cursor-help">
+                                                <p className="font-mono text-[13px] text-slate-300 group-hover/clabe:text-[#60e2ff] transition-colors">
+                                                    {client.clabe_stp
+                                                        ? client.clabe_stp.replace(/^(\d{3})(\d{3})(\d{4})(\d{3})(\d{4})(\d{1})$/, '$1 $2 $3 $4 $5 $6')
+                                                        : "———— ———— ———— ————"}
+                                                </p>
+                                            </div>
                                         </td>
-                                        <td className="p-6">
-                                            <div className="flex items-center gap-2 text-emerald-600 font-bold text-xs bg-emerald-50 px-3 py-1.5 rounded-full w-fit">
-                                                <FaCheckCircle /> {client.estatus?.toUpperCase() || 'ACTIVO'}
+                                        <td className="p-7 text-right">
+                                            <div className="flex items-center gap-2 text-[#60e2ff] font-black text-[9px] bg-teal-500/5 border border-teal-500/20 px-4 py-2 rounded-xl w-fit group-hover:bg-teal-500/10 transition-all">
+                                                <div className="w-1.5 h-1.5 bg-teal-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(20,184,166,0.8)]"></div>
+                                                <span className="tracking-[0.2em]">{client.estatus?.toUpperCase() || 'ACTIVO'}</span>
                                             </div>
                                         </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="4" className="p-20 text-center">
-                                        <p className="text-slate-400 font-medium">No se encontraron clientes con esos criterios.</p>
+                                    <td colSpan="4" className="p-32 text-center">
+                                        <div className="flex flex-col items-center opacity-20">
+                                            <FaFingerprint className="text-6xl mb-4" />
+                                            <p className="text-sm font-bold uppercase tracking-[0.3em]">No se detectan registros</p>
+                                        </div>
                                     </td>
                                 </tr>
                             )}

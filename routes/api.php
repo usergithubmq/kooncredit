@@ -25,7 +25,7 @@ use App\Http\Controllers\Stp\StpWebhookController;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes - KoonSystem B2B
+| API Routes - Denar B2B
 |--------------------------------------------------------------------------
 */
 
@@ -33,10 +33,12 @@ use App\Http\Controllers\Stp\StpWebhookController;
 // Esto cargará lo que tienes en auth.php
 require __DIR__ . '/auth.php';
 
-// Webhook externo (Sin Auth)
+// --- RUTAS PÚBLICAS ---
 Route::post('/stp/webhook/abono', [StpWebhookController::class, 'recibirAbono']);
+Route::get('/branding/{slug}', [App\Http\Controllers\PublicBrandingController::class, 'getBranding']);
 
 
+// --- RUTAS PROTEGIDAS) ---
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/user', function (Request $request) {
@@ -95,7 +97,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/phone/verify', [PhoneVerificationController::class, 'verify']);
     });
 
-    // 4. APP MÓVIL - CLIENTE FINAL (KoonPay / UserWallet)
+    // 4. APP MÓVIL - CLIENTE FINAL (DenarApp)
     Route::middleware(['auth:sanctum', 'role:cliente_final'])->prefix('my')->group(function () {
 
         // Dashboard Principal: Saldo, CLABE y Estatus

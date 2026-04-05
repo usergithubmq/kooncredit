@@ -22,7 +22,7 @@
             </div>
            <div style="font-family: sans-serif; padding: 20px; color: #333;">
     <h2 style="color: #0c516e;">¡Bienvenido, {{ $datos['nombre'] }}!</h2>
-    <p>Tu cuenta en <strong>KoonSystem</strong> ha sido activada por <strong>{{ $datos['empresa'] }}</strong>.</p>
+    <p>Tu cuenta en <strong>Denar</strong> ha sido activada por <strong>{{ $datos['empresa'] }}</strong>.</p>
     
     <div style="background: #f1f5f9; padding: 15px; border-radius: 10px; margin: 20px 0;">
         <span style="font-size: 12px; color: #666;">TU CONTRASEÑA TEMPORAL:</span><br>
@@ -34,7 +34,7 @@
             <div class="footer">
                 Este es un mensaje automático de seguridad.<br>
                 Si no esperabas este correo, por favor contáctanos.<br><br>
-                <strong>KoonSystem © 2026</strong>
+                <strong>Denar © 2026</strong>
             </div>
         </div>
     </div>

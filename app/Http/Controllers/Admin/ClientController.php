@@ -8,6 +8,7 @@ use App\Models\Cliente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ClientController extends Controller
 {
@@ -50,7 +51,7 @@ class ClientController extends Controller
                     'second_last' => $request->person_type === 'fisica' ? $request->second_last : null,
                 ]);
 
-                // 2. LÓGICA DE CLABES STP (KoonSystem Engine)
+                // 2. LÓGICA DE CLABES STP (Denar Engine)
                 $banco = "646";
                 $plaza = "180";
                 $prefijoEmpresa = "6665";
@@ -71,6 +72,7 @@ class ClientController extends Controller
 
                 // 3. Crear el Perfil de Cliente con sus llaves financieras
                 $user->cliente()->create([
+                    'slug'                  => Str::slug($request->name) . '-' . Str::random(5),
                     'rfc'                   => strtoupper($request->rfc),
                     'tipo_cliente'          => ($request->person_type === 'moral') ? 'empresa' : 'persona',
                     'nombre_legal'          => $request->name, // Opcional: ajustar según input
@@ -82,7 +84,7 @@ class ClientController extends Controller
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Entidad registrada con éxito en KoonSystem.',
+                    'message' => 'Entidad registrada con éxito en Denar.',
                     'user'    => $user->load('cliente')
                 ], 201);
             });
@@ -94,7 +96,7 @@ class ClientController extends Controller
     public function getProfile(Request $request)
     {
         $user = $request->user();
-        $cliente = $user->cliente; // Asegúrate de tener la relación 'cliente' en el modelo User
+        $cliente = $user->cliente;
 
         if (!$cliente) {
             return response()->json(['error' => 'Perfil no encontrado'], 404);
@@ -103,26 +105,27 @@ class ClientController extends Controller
         return response()->json([
             'nombre_comercial' => $cliente->nombre_comercial,
             'nombre_legal'     => $cliente->nombre_legal,
-            'logo_url'         => $cliente->logo_url, // Ruta relativa almacenada
-            'rfc'              => $cliente->rfc
+            'logo_url'         => $cliente->logo_url,
+            'rfc'              => $cliente->rfc,
+            'slug'             => $cliente->slug,
+            'primary_color'    => $cliente->primary_color,
+            'login_slogan'     => $cliente->login_slogan,
         ]);
     }
 
     public function updateProfile(Request $request)
     {
-        // 1. Ver qué recibimos exactamente
-        \Log::info('Datos recibidos en request:', $request->all());
-        \Log::info('Archivos recibidos:', $request->file());
-
-        // 2. Validación "Relajada" (sin regla 'image')
         $validator = \Validator::make($request->all(), [
-            'logo' => 'nullable|file|max:2048', // Quitamos 'image' y 'mimes'
+            'logo'             => 'nullable|file|max:2048',
             'nombre_comercial' => 'nullable|string',
-            'rfc' => 'nullable|string',
+            'nombre_legal'     => 'nullable|string',
+            'rfc'              => 'nullable|string',
+            'slug'             => 'nullable|string',
+            'primary_color'    => 'nullable|string',
+            'login_slogan'     => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
-            \Log::error('Errores de validación:', $validator->errors()->toArray());
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
@@ -135,16 +138,27 @@ class ClientController extends Controller
                 $cliente->logo_url = $path;
             }
 
-            $cliente->fill($request->only(['nombre_comercial', 'nombre_legal', 'rfc']));
+            // Actualizamos permitiendo los nuevos campos de branding
+            $cliente->fill($request->only([
+                'nombre_comercial',
+                'nombre_legal',
+                'rfc',
+                'slug',
+                'primary_color',
+                'login_slogan'
+            ]));
+
             $cliente->save();
 
-            return response()->json(['success' => true]);
+            return response()->json([
+                'success' => true,
+                'cliente' => $cliente // Devolvemos el cliente actualizado
+            ]);
         } catch (\Exception $e) {
             \Log::error('Error de servidor: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-
     /**
      * Algoritmo de Dígito Verificador CLABE (Módulo 10 Ponderado)
      */

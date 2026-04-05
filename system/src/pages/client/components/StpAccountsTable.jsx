@@ -7,6 +7,7 @@ import {
 } from "react-icons/fa";
 
 export default function StpAccountsTable({
+    clienteInfo,
     endUsers,
     onCopy,
     loading,
@@ -20,6 +21,7 @@ export default function StpAccountsTable({
     const [filtroEstado, setFiltroEstado] = useState("todos");
     const [expandedUser, setExpandedUser] = useState(null);
     const itemsPerPage = 8;
+    const brandColor = clienteInfo?.primary_color || "#60e2ff";
 
     const formatClabe = (clabe) => {
         if (!clabe) return "GENERANDO...";
@@ -186,47 +188,47 @@ export default function StpAccountsTable({
         <div className="space-y-4">
             {/* --- RESUMEN FINANCIERO MODERNO --- */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                <div className="bg-gradient-to-r from-[#0c516e] to-[#04364b] rounded-2xl p-4 shadow-lg transform hover:scale-105">
+                <div className="bg-gradient-to-r from-[#051d26] to-[#04364b] rounded-2xl p-4 shadow-lg transform hover:scale-105">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-teal-100 text-xs font-bold uppercase tracking-wider">Total Crédito</p>
-                            <p className="text-white text-2xl font-black mt-1">{formatMonto(resumen.totalCredito)}</p>
+                            <p className="text-white text-xs font-normal uppercase tracking-wider">Total Crédito</p>
+                            <p className="text-white text-2xl font-normal mt-1">{formatMonto(resumen.totalCredito)}</p>
                         </div>
-                        <FaWallet className="text-teal-200 text-3xl opacity-80" />
+                        <FaWallet className="text-[#3d9e9d] text-3xl opacity-80" />
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-[#279a94] to-[#107570] rounded-2xl p-4 shadow-lg transform hover:scale-105 transition-all duration-300">
+                <div className="bg-gradient-to-r from-[#051d26] to-[#04364b] rounded-2xl p-4 shadow-lg transform hover:scale-105 transition-all duration-300">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-green-100 text-xs font-bold uppercase tracking-wider">Total Pagado</p>
-                            <p className="text-white text-2xl font-black mt-1">{formatMonto(resumen.totalPagado)}</p>
+                            <p className="text-white text-xs font-normal uppercase tracking-wider">Total Pagado</p>
+                            <p className="text-white text-2xl font-normal mt-1">{formatMonto(resumen.totalPagado)}</p>
                         </div>
-                        <FaCheckCircle className="text-green-200 text-3xl opacity-80" />
+                        <FaCheckCircle className="text-[#3d9e9d] text-3xl opacity-80" />
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-[#0c516e] to-[#04364b] rounded-2xl p-4 shadow-lg transform hover:scale-105 transition-all duration-300">
+                <div className="bg-gradient-to-r from-[#051d26] to-[#04364b] rounded-2xl p-4 shadow-lg transform hover:scale-105 transition-all duration-300">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-orange-100 text-xs font-bold uppercase tracking-wider">Saldo Pendiente</p>
-                            <p className="text-white text-2xl font-black mt-1">{formatMonto(resumen.totalPendiente)}</p>
+                            <p className="text-white text-xs font-normal uppercase tracking-wider">Saldo Pendiente</p>
+                            <p className="text-white text-2xl font-normal mt-1">{formatMonto(resumen.totalPendiente)}</p>
                         </div>
-                        <FaExclamationTriangle className="text-orange-200 text-3xl opacity-80" />
+                        <FaExclamationTriangle className="text-[#4bb8b3] text-3xl opacity-80" />
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-[#051a22] to-[#082735] rounded-2xl p-4 shadow-lg transform hover:scale-105 transition-all duration-300">
+                <div className="bg-gradient-to-r from-[#051d26] to-[#04364b] rounded-2xl p-4 shadow-lg transform hover:scale-105 transition-all duration-300">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-blue-100 text-xs font-bold uppercase tracking-wider">Progreso</p>
-                            <p className="text-white text-2xl font-black mt-1">
+                            <p className="text-white text-xs font-normal uppercase tracking-wider">Progreso</p>
+                            <p className="text-white text-2xl font-normal mt-1">
                                 {resumen.totalCredito > 0
                                     ? `${Math.round((resumen.totalPagado / resumen.totalCredito) * 100)}%`
                                     : '0%'}
                             </p>
                         </div>
-                        <FaPercent className="text-blue-200 text-3xl opacity-80" />
+                        <FaPercent className="text-[#3d9e9d] text-3xl opacity-80" />
                     </div>
                 </div>
             </div>
@@ -235,7 +237,7 @@ export default function StpAccountsTable({
             <div className="flex flex-col md:flex-row gap-3">
                 <div className="relative group flex-1">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <FaSearch className="text-slate-400 text-sm group-focus-within:text-teal-500 transition-all duration-300" />
+                        <FaSearch className="text-slate-500 text-sm group-focus-within:text-teal-500 transition-all duration-300" />
                     </div>
                     <input
                         type="text"
@@ -255,7 +257,7 @@ export default function StpAccountsTable({
                         setFiltroEstado(e.target.value);
                         setCurrentPage(1);
                     }}
-                    className="px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-slate-100 rounded-2xl text-sm font-medium outline-none focus:border-teal-500 transition-all duration-300 cursor-pointer"
+                    className="px-4 py-3 text-[#98a5aa] bg-white/80 backdrop-blur-sm border-2 border-slate-100 rounded-2xl text-sm font-medium outline-none focus:border-teal-500 transition-all duration-300 cursor-pointer"
                 >
                     <option value="todos"> Todos ({filteredUsers.length})</option>
                     <option value="pagado"> Completados ({resumen.clientesPagados})</option>
@@ -270,16 +272,27 @@ export default function StpAccountsTable({
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-gradient-to-r from-[#051a22] via-[#0c516e] to-[#062b3b] bg-[length:200%_100%] animate-shimmer">
-                                <th className="py-4 px-6 text-[10px] font-black text-white uppercase tracking-wider">Cliente</th>
-                                <th className="py-4 px-6 text-[10px] font-black text-white uppercase tracking-wider text-right">Crédito / Pagado</th>
-                                <th className="py-4 px-6 text-[10px] font-black text-white uppercase tracking-wider text-right">Saldo Pendiente</th>
-                                <th className="py-4 px-6 text-[10px] font-black text-white uppercase tracking-wider text-center">Estado</th>
-                                <th className="py-4 px-6 text-[10px] font-black text-white uppercase tracking-wider text-center">Contrato</th>
-                                <th className="py-4 px-6 text-[10px] font-black text-white uppercase tracking-wider text-center">Acciones</th>
+                            <tr
+                                className="transition-all duration-1000"
+                                style={{
+                                    // 1. Animación más lenta (8s para un barrido cinematográfico)
+                                    animation: 'shimmer-slow 8s linear infinite',
+                                    // 2. Gradiente con el color del cliente al 80% de opacidad (cc) 
+                                    // 3. El centro (50%) ahora es más ancho para que el color resalte
+                                    backgroundImage: `linear-gradient(90deg, #051a22 0%, ${brandColor}cc 20%, #062b3b 100%)`,
+                                    backgroundSize: '200% 100%',
+                                    borderBottom: `5px solid ${brandColor}66` // Borde más presente
+                                }}
+                            >
+                                <th className="py-6 px-6 text-[10px] font-black text-white uppercase tracking-[0.3em]">Cliente</th>
+                                <th className="py-6 px-6 text-[10px] font-black text-white uppercase tracking-[0.3em] text-right">Movimientos</th>
+                                <th className="py-6 px-6 text-[10px] font-black text-white uppercase tracking-[0.3em] text-right">Pendiente</th>
+                                <th className="py-6 px-6 text-[10px] font-black text-white uppercase tracking-[0.3em] text-center">Estado</th>
+                                <th className="py-6 px-6 text-[10px] font-black text-white uppercase tracking-[0.3em] text-center">Contrato</th>
+                                <th className="py-6 px-6 text-[10px] font-black text-white uppercase tracking-[0.3em] text-center">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-slate-100 bg-[#d3e0e5]">
                             {currentItems.length > 0 ? (
                                 currentItems.map((user, idx) => {
                                     const estadoBadge = getEstadoBadge(user.estadoPago);

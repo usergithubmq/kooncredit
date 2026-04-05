@@ -1,0 +1,374 @@
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400&display=swap");
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    color-scheme: dark;
+    --dark-bg: #051d26;
+    --dark-fg: #e8e4d9;
+    --accent-dark: #60e2ff;
+    --accent-light: #080e0d;
+
+    --bg: var(--dark-bg);
+    --fg: var(--dark-fg);
+    --accent: var(--accent-dark);
+    --card-border: rgba(200, 255, 71, 0.18);
+
+    --font-display: "Bebas Neue", sans-serif;
+    --font-mono: "DM Mono", monospace;
+    --hairline: 1px;
+    --ui-inset: 2rem;
+    --z-ui: 10;
+}
+
+body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    overflow-x: hidden;
+    transition: background 0.4s ease;
+}
+
+#webgl-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+#hud {
+    position: fixed;
+    top: var(--ui-inset);
+    right: var(--ui-inset);
+    z-index: var(--z-ui);
+    text-align: right;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+}
+
+.progress-bar {
+    width: 7.5rem;
+    height: 1px;
+    background: var(--muted);
+    margin-top: 0.5rem;
+    margin-left: auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill {
+    position: absolute;
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.1s linear;
+}
+
+#scene-strip {
+    position: fixed;
+    left: 3rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: var(--z-ui);
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.scene-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: all 0.3s;
+}
+
+.scene-dot.active {
+    background: var(--accent);
+    transform: scale(1.8);
+}
+
+#theme-toggle {
+    position: fixed;
+    bottom: var(--ui-inset);
+    left: 3rem;
+    transform: translateX(-50%);
+    z-index: var(--z-ui);
+    background: none;
+    border: 1px solid var(--muted);
+    color: var(--accent);
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#theme-toggle .icon-moon {
+    display: none;
+}
+
+:root[data-theme="light"] #theme-toggle .icon-sun {
+    display: none;
+}
+
+:root[data-theme="light"] #theme-toggle .icon-moon {
+    display: block;
+}
+
+#scroll-container {
+    position: relative;
+    z-index: 1;
+}
+
+section {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 0 10%;
+}
+
+.text-card {
+    max-width: 400px;
+    padding: 2.5rem;
+    border-left: 1px solid var(--card-border);
+}
+
+.text-card.right {
+    margin-left: auto;
+    border-left: none;
+    border-right: 1px solid var(--card-border);
+    text-align: right;
+}
+
+.text-card.center {
+    margin: 0 auto;
+    text-align: center;
+    border-left: none;
+    border-top: 1px solid var(--card-border);
+}
+
+h1,
+h2 {
+    font-family: var(--font-display);
+    font-size: 5rem;
+    line-height: 0.9;
+    margin: 1.5rem 0;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: 0.8s all ease;
+}
+
+.tag {
+    font-size: 1rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    opacity: 0;
+    transition: 0.6s all ease;
+}
+
+.body-text {
+    font-size: 0.9rem;
+    color: #fff;
+    line-height: 1.6;
+    opacity: 0;
+    transition: 0.8s all ease;
+    delay: 0.2s;
+}
+
+/* Clases que activa el Intersection Observer en Home.jsx */
+.visible h1,
+.visible h2,
+.visible .tag,
+.visible .body-text,
+.visible .h-line,
+.visible .cta {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.h-line {
+    width: 50px;
+    height: 1px;
+    background: var(--accent);
+    margin-bottom: 1rem;
+}
+
+.text-card.right .h-line {
+    margin-left: auto;
+}
+
+.text-card.center .h-line {
+    margin: 0 auto;
+}
+
+.cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 2rem;
+    padding: 10px 20px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+}
+
+#credit {
+    position: fixed;
+    right: 2rem;
+    bottom: 2rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    transform: rotate(-90deg);
+    transform-origin: right bottom;
+    opacity: 0.5;
+}
+
+/* src/pages/home/Home.css */
+.home-wrapper {
+    position: relative;
+    width: 100%;
+    z-index: 1;
+}
+
+#scroll-container {
+    position: relative;
+    z-index: 2;
+    /* Por encima del canvas */
+}
+
+.text-card {
+    color: #ffffff;
+    /* Forzar blanco */
+    opacity: 1 !important;
+    /* Evitar que se oculte por error */
+}
+
+/* Si usas la clase .visible para animar, asegúrate de que esto exista */
+.tag,
+h1,
+h2,
+.body-text,
+.cta {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.8s ease-out;
+}
+
+.visible {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+#webgl-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    /* El video tiene z-index: 0 */
+    background: transparent !important;
+    /* Vital */
+    pointer-events: none;
+    /* Permite que el scroll funcione sobre el video */
+}
+
+#bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    opacity: 0.15;
+    /* Tenue como pediste */
+}
+
+/* El fondo base de la aplicación */
+.home-wrapper {
+    background-color: #051d26;
+    overflow-x: hidden;
+}
+
+/* El video: Estirado, fijo y con opacidad baja */
+#bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    opacity: 0.15;
+    /* AJUSTA AQUÍ: Más bajo = más tenue */
+    pointer-events: none;
+}
+
+/* El canvas: Debe ser transparente para ver el video atrás */
+#webgl-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    background: transparent !important;
+}
+
+/* El contenido (HUD y Secciones) siempre arriba */
+#hud,
+#scroll-container,
+#scene-strip {
+    position: relative;
+    z-index: 2;
+}
+
+.denar-logo-hero {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* Centro perfecto */
+    z-index: 10;
+    /* Por encima del WebGL (1) pero debajo de los textos de las cards si es necesario */
+    width: 280px;
+    /* Ajusta el tamaño de tu logo aquí */
+    height: auto;
+    pointer-events: none;
+    /* Para que no interfiera con el scroll o clicks */
+
+    /* Efecto de profundidad */
+    filter: drop-shadow(0 0 30px rgba(96, 226, 255, 0.15));
+    opacity: 0.9;
+
+    /* Animación de entrada suave */
+    animation: logoEntrance 1.5s ease-out forwards;
+}
+
+.denar-logo-hero img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+@keyframes logoEntrance {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -45%) scale(0.95);
+        filter: blur(10px);
+    }
+
+    to {
+        opacity: 0.9;
+        transform: translate(-50%, -50%) scale(1);
+        filter: blur(0);
+    }
+}

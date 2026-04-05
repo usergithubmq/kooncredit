@@ -1,115 +1,112 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import Logo from '../assets/kf3.png';
+import React, { useEffect } from 'react';
+import './home/Home.css';
+import { initEngine } from './home/Home.js';
+import Header from './components/Header.jsx';
 
-const HomeFintech = () => {
-    const navigate = useNavigate();
+const Home = () => {
+    useEffect(() => {
+        document.title = "Denar | Interactive Systems";
+        initEngine();
+    }, []);
 
     return (
-        <div className="flex min-h-screen bg-white text-slate-900 font-sans">
+        <div className="home-wrapper">
+            <Header />
+            <div className="denar-logo-hero">
+                <img src="./../../public/denarTexto.png" alt="Denar Logo" />
+            </div>
+            <video autoPlay muted loop playsInline id="bg-video">
+                <source src="./../../public/video/us.mp4" type="video/mp4" />
+            </video>
+            <canvas id="webgl-canvas"></canvas>
+            <div id="scene-strip">
+                <div className="scene-dot active"></div>
+                <div className="scene-dot"></div>
+                <div className="scene-dot"></div>
+                <div className="scene-dot"></div>
+                <div className="scene-dot"></div>
+            </div>
+            <div id="scroll-container">
 
-            {/* --- SIDEBAR COMPACTO --- */}
-            <aside className="w-60 bg-[#0c516e] text-white flex flex-col fixed h-full z-50 shadow-2xl">
-                <div className="p-12 flex justify-center">
-                    <div
-                        className="cursor-pointer group"
-                        onClick={() => window.location.href = 'https://koonfinansen.com.mx'}
-                    >
-                        <img src={Logo} alt="Logo" className="w-25 h-25 object-contain group-hover:scale-105 transition-transform" />
-                    </div>
-                </div>
-
-                <nav className="flex-1 px-3 space-y-1 mt-2">
-                    <div className="text-[12px] font-black text-teal-100/50 uppercase tracking-[0.2em] px-4 mb-2">Menú</div>
-                    {[
-                        { name: 'Soluciones', link: '#soluciones' },
-                        { name: 'Legales', link: '#legales' },
-                        { name: 'Preguntas', link: '#faq' },
-                        { name: 'Contacto', link: '#contacto' }
-                    ].map((item) => (
-                        <a key={item.name} href={item.link} className="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-white/5 font-light transition-all text-sm">
-                            <div className="w-1 h-1 bg-teal-400 rounded-full"></div>
-                            <span>{item.name}</span>
+                <section id="s0">
+                    <div className="text-card">
+                        <div className="tag">DENAR.network</div>
+                        <h1>TECNOLOGÍA<br />QUE SE<br />ADAPTA</h1>
+                        <p className="body-text">
+                            No creemos en estructuras rígidas. Nuestra infraestructura
+                            financiera evoluciona y cambia de forma para encajar
+                            perfectamente en la arquitectura de tu negocio.
+                        </p>
+                        <a className="cta" href="#s1">
+                            VENTAS
+                            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                <path d="M1 6h10M6 1l5 5-5 5" />
+                            </svg>
                         </a>
-                    ))}
-                </nav>
-
-                <div className="p-4 border-t border-white/5">
-                    <button
-                        onClick={() => navigate('/login')}
-                        className="w-full bg-white text-[#0c516e] py-3 rounded-xl text-xs font-black uppercase hover:bg-teal-50 transition-all shadow-lg"
-                    >
-                        Ingresar
-                    </button>
-                    <div className="mt-4 text-[8px] font-bold text-white/20 uppercase tracking-[0.3em] text-center">
-                        CDMX • 2026
-                    </div>
-                </div>
-            </aside>
-
-            {/* --- CONTENIDO PRINCIPAL --- */}
-            <main className="flex-1 ml-60">
-                <section className="relative pt-10 bg-gradient-to-br from-slate-50 to-white overflow-hidden min-h-screen flex items-center">
-                    <div className="container mx-auto px-8 md:px-16 relative z-10">
-
-                        <div className="max-w-6xl w-full">
-                            {/* --- TÍTULO REFINADO (MÁS DELGADO Y LIGERO) --- */}
-                            <header className="mb-8">
-                                <h1 className="text-[#0c516e] text-5xl md:text-[85px] font-extralight leading-[0.95] tracking-[-0.05em] mb-6">
-                                    El motor financiero <br />
-                                    <span className="text-[#279a94] font-medium tracking-tight text-3xl md:text-6xl">
-                                        B2B Inteligente.
-                                    </span>
-                                </h1>
-                                <div className="w-20 h-1 bg-[#279a94]/30 rounded-full"></div>
-                            </header>
-
-                            {/* LEMA MÁS LIGERO */}
-                            <p className="text-xl md:text-2xl text-slate-500 mb-12 max-w-3xl font-extralight leading-relaxed tracking-tight">
-                                Una sola infraestructura para automatizar tus pagos <br className="hidden lg:block" />
-                                o fondear tu crecimiento estratégico en <span className="text-[#0c516e] font-normal">Ciudad de México.</span>
-                            </p>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10">
-                                {/* ROL 1: CRÉDITO */}
-                                <div className="bg-[#0c516e] p-10 rounded-[2.5rem] border border-slate-100 shadow-xl hover:shadow-2xl transition-all group flex items-start gap-6 border-b-4 border-b-teal-500/10">
-                                    <div className="w-16 h-16 shrink-0 bg-teal-50 text-[#279a94] rounded-2xl flex items-center justify-center text-2xl font-light">01</div>
-                                    <div className="flex-1">
-                                        <h3 className="text-2xl font-light mb-2 text-white uppercase tracking-tighter">Crédito empresarial</h3>
-                                        <p className="text-slate-300 text-sm mb-6 font-light">Precalifica tu empresa en minutos y obtén liquidez inmediata.</p>
-                                        <button onClick={() => navigate('/select-person-type')} className="w-full bg-[#279a94] text-white py-4 rounded-2xl font-bold uppercase tracking-widest hover:bg-[#568fa5] transition-all">Prerregistro</button>
-                                    </div>
-                                </div>
-
-                                {/* ROL 2: ADMINISTRACIÓN */}
-                                <div className="bg-[#0c516e] p-10 rounded-[2.5rem] shadow-2xl hover:shadow-indigo-500/10 transition-all group flex items-start gap-6 border-b-4 border-b-white/5">
-                                    <div className="w-16 h-16 shrink-0 bg-teal-50 text-[#279a94] rounded-2xl flex items-center justify-center text-2xl font-light">02</div>
-                                    <div className="flex-1">
-                                        <h3 className="text-2xl font-light mb-2 text-white uppercase tracking-tighter">Renta Potenciada</h3>
-                                        <p className="text-slate-300 text-sm mb-6 font-light">Automatiza conciliación y nómina mediante nuestra API.</p>
-                                        <button onClick={() => navigate('/select-person-type')} className="w-full bg-[#279a94] text-white py-4 rounded-2xl font-bold uppercase tracking-widest hover:bg-[#568fa5] transition-all">Prerregistro</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="absolute top-0 right-0 w-1/2 h-full pointer-events-none -z-10">
-                        <div className="absolute top-0 right-[-10%] w-[70%] h-[70%] bg-teal-50/50 rounded-full blur-[120px]"></div>
                     </div>
                 </section>
-
-                <footer className="bg-white py-8 px-16 border-t border-slate-100">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] font-black text-slate-500 uppercase tracking-widest">
-                        <div className="flex gap-4">
-                            {['CDMX', 'SaaS', 'Fintech'].map(tag => <span key={tag}>#{tag}</span>)}
-                        </div>
-                        <div className="font-light uppercase tracking-tighter text-slate-400">KOONFINANCE © 2026</div>
+                <section id="s1">
+                    <div className="text-card right">
+                        <div className="h-line"></div>
+                        <h2>FLUJO<br />CONTINUO</h2>
+                        <p className="body-text">
+                            Al igual que nuestras interfaces, el capital debe ser fluido.
+                            Diseñamos ecosistemas B2B que se moldean según las
+                            demandas del mercado actual.
+                        </p>
                     </div>
-                </footer>
-            </main>
+                </section>
+                <section id="s2">
+                    <div className="text-card">
+                        <div className="h-line"></div>
+                        <h2>CÓDIGO<br />LÍQUIDO</h2>
+                        <p className="body-text">
+                            Nuestras soluciones SaaS no son moldes fijos. Son
+                            algoritmos capaces de reconfigurarse para resolver los
+                            desafíos específicos de cada industria.
+                        </p>
+                        <a className="cta" href="#s3">
+                            Sistemas Dinámicos
+                            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                <path d="M1 6h10M6 1l5 5-5 5" />
+                            </svg>
+                        </a>
+                    </div>
+                </section>
+                <section id="s3">
+                    <div className="text-card center">
+                        <div className="h-line"></div>
+                        <h2>NUNCA<br />ESTÁTICOS</h2>
+                        <p className="body-text">
+                            En Denar, la innovación es un estado de cambio constante.
+                            Si tu negocio crece, nuestra tecnología se expande contigo.
+                        </p>
+                    </div>
+                </section>
+                <section id="s4">
+                    <div className="text-card right">
+                        <div className="h-line"></div>
+                        <h2>REGÍSTRATE</h2>
+                        <p className="body-text">
+                            Regístrate e inicia tu actualización hacia el nuevo mundo de la tecnología en las finanzas.
+                            Da el siguiente paso hacia una infraestructura más ágil, segura y preparada para el futuro.
+                        </p>
+                        <a className="cta" href="#s0">
+                            Comenzar ahora
+                            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                <path d="M1 6h10M6 1l5 5-5 5" />
+                            </svg>
+                        </a>
+                    </div>
+                </section>
+            </div>
+            <div id="credit">
+                <a href="https://denar.network" target="_blank" rel="noopener">
+                    DENAR NETWORK — 2026
+                </a>
+            </div>
         </div>
     );
 };
 
-export default HomeFintech;
+export default Home;
