@@ -37,29 +37,26 @@ class StpWebhookController extends Controller
 
             // 3. Modificación en la Transacción para que sea más segura
             return DB::transaction(function () use ($data) {
-
-                // Creamos el registro de StpAbono
-                // OJO: Asegúrate que los campos coincidan con tu migración de Denar
                 $abono = StpAbono::create([
-                    'stp_id'                    => $data['id'] ?? null,
-                    'fecha_operacion'           => $data['fechaOperacion'] ?? null,
-                    'institucion_ordenante'     => $data['institucionOrdenante'] ?? null,
-                    'institucion_beneficiaria'  => $data['institucionBeneficiaria'] ?? null,
-                    'clave_rastreo'             => $data['claveRastreo'] ?? null,
+                    'stp_id'                    => $data['id'] ?? $data['stp_id'] ?? null,
+                    'fecha_operacion'           => $data['fechaOperacion'] ?? $data['fecha_operacion'] ?? null,
+                    'institucion_ordenante'     => $data['institucionOrdenante'] ?? $data['institucion_ordenante'] ?? null,
+                    'institucion_beneficiaria'  => $data['institucionBeneficiaria'] ?? $data['institucion_beneficiaria'] ?? null,
+                    'clave_rastreo'             => $data['claveRastreo'] ?? $data['clave_rastreo'] ?? null,
                     'monto'                     => $data['monto'] ?? 0,
-                    'nombre_ordenante'          => $data['nombreOrdenante'] ?? 'ND',
-                    'tipo_cuenta_ordenante'     => $data['tipoCuentaOrdenante'] ?? null,
-                    'cuenta_ordenante'          => $data['cuentaOrdenante'] ?? null,
-                    'rfc_curp_ordenante'        => $data['rfcCurpOrdenante'] ?? 'ND',
-                    'nombre_beneficiario'       => $data['nombreBeneficiario'] ?? 'ND',
-                    'tipo_cuenta_beneficiario'  => $data['tipoCuentaBeneficiario'] ?? null,
-                    'cuenta_beneficiario'       => $data['cuentaBeneficiario'] ?? null,
-                    'rfc_curp_beneficiario'     => $data['rfcCurpBeneficiario'] ?? 'ND',
-                    'concepto_pago'             => $data['conceptoPago'] ?? 'ND',
-                    'referencia_numerica'       => $data['referenciaNumerica'] ?? 0,
+                    'nombre_ordenante'          => $data['nombreOrdenante'] ?? $data['nombre_ordenante'] ?? 'ND',
+                    'tipo_cuenta_ordenante'     => $data['tipoCuentaOrdenante'] ?? $data['tipo_cuenta_ordenante'] ?? null,
+                    'cuenta_ordenante'          => $data['cuentaOrdenante'] ?? $data['cuenta_ordenante'] ?? null,
+                    'rfc_curp_ordenante'        => $data['rfcCurpOrdenante'] ?? $data['rfc_curp_ordenante'] ?? 'ND',
+                    'nombre_beneficiario'       => $data['nombreBeneficiario'] ?? $data['nombre_beneficiario'] ?? 'ND',
+                    'tipo_cuenta_beneficiario'  => $data['tipoCuentaBeneficiario'] ?? $data['tipo_cuenta_beneficiario'] ?? null,
+                    'cuenta_beneficiario'       => $data['cuentaBeneficiario'] ?? $data['cuenta_beneficiario'] ?? null,
+                    'rfc_curp_beneficiario'     => $data['rfcCurpBeneficiario'] ?? $data['rfc_curp_beneficiario'] ?? 'ND',
+                    'concepto_pago'             => $data['conceptoPago'] ?? $data['concepto_pago'] ?? 'ND',
+                    'referencia_numerica'       => $data['referenciaNumerica'] ?? $data['referencia_numerica'] ?? 0,
                     'empresa'                   => $data['empresa'] ?? 'ND',
-                    'tipo_pago'                 => $data['tipoPago'] ?? 1,
-                    'ts_liquidacion'            => $data['tsLiquidacion'] ?? '0',
+                    'tipo_pago'                 => $data['tipoPago'] ?? $data['tipo_pago'] ?? 1,
+                    'ts_liquidacion'            => $data['tsLiquidacion'] ?? $data['ts_liquidacion'] ?? '0',
                 ]);
 
                 $this->aplicarPagoAlPlan($abono);
