@@ -16,6 +16,7 @@ export default function EndUserForm({ onUserCreated }) {
         document_value: "",
         email: "",
         referencia_interna: "",
+        credito: 0,
         monto_normal: 0,
         moratoria: 0,
         monto_libre: true, // Por defecto libre
@@ -60,6 +61,7 @@ export default function EndUserForm({ onUserCreated }) {
                 user_id: newPagador.user_id,
                 cuenta_beneficiario: newPagador.clabe_stp,
                 referencia_contrato: formData.referencia_interna,
+                credito: Number(formData.credito),
                 monto_normal: montoFinal,
                 moratoria: Number(formData.moratoria),
                 monto_libre: formData.monto_libre, // Enviamos bandera a tu DB
@@ -183,9 +185,29 @@ export default function EndUserForm({ onUserCreated }) {
                             <p className="text-[11px] text-slate-400 uppercase tracking-widest font-normal">Define la regla de cobro para esta CLABE</p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 items-end">
+                        {/* ACTUALIZADO: Grid de 2 filas para acomodar el nuevo campo */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+
+                            {/* NUEVO: INPUT DE CRÉDITO TOTAL */}
+                            <div className="flex flex-col gap-3">
+                                <label className="text-[11px] font-medium text-slate-600 uppercase tracking-widest ml-1 flex items-center gap-2">
+                                    <FaMoneyBillWave className="text-teal-500/40" /> Límite de Crédito Total
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-light">$</span>
+                                    <input
+                                        type="number"
+                                        value={formData.credito}
+                                        onChange={e => setFormData({ ...formData, credito: e.target.value })}
+                                        className="h-14 pl-10 pr-6 w-full rounded-2xl border-2 border-slate-200 bg-white text-slate-800 text-lg font-normal focus:border-teal-500 outline-none"
+                                        placeholder="50000.00"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* MODALIDAD DE PAGO */}
                             <div className="flex flex-col gap-4">
-                                <label className="text-[11px] font-medium text-slate-500 uppercase tracking-widest ml-1">Modalidad de Pago</label>
+                                <label className="text-[11px] font-medium text-slate-500 uppercase tracking-widest ml-1">Modalidad de Pago Mensual</label>
                                 <div className="flex p-1.5 bg-slate-100 rounded-2xl border border-slate-200">
                                     <button
                                         type="button"
@@ -203,9 +225,12 @@ export default function EndUserForm({ onUserCreated }) {
                                     </button>
                                 </div>
                             </div>
+                        </div>
 
+                        {/* SEGUNDA FILA: MONTO FIJO Y MENSAJE DE AYUDA */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
                             <div className={`flex flex-col gap-3 transition-all duration-500 ${formData.monto_libre ? 'opacity-20 grayscale pointer-events-none' : 'opacity-100'}`}>
-                                <label className="text-[11px] font-medium text-slate-600 uppercase tracking-widest ml-1">Monto de Match ($)</label>
+                                <label className="text-[11px] font-medium text-slate-600 uppercase tracking-widest ml-1">Monto de Mensualidad Exacta ($)</label>
                                 <div className="relative">
                                     <span className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-light">$</span>
                                     <input

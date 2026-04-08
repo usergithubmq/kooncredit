@@ -73,24 +73,17 @@ export default function StpAccountsTable({
             }
 
             // 2. Usamos los nombres exactos que vimos en tu consola:
-            const creditoTotal = parseFloat(
-                paymentPlan.credito ||      // Este es null en tu caso
-                paymentPlan.monto_normal || // Este tiene los 2500
-                0
-            );
+            const creditoTotal = parseFloat(paymentPlan.credito || 0);
 
-            const montoPagado = parseFloat(
-                paymentPlan.monto_pagado_acumulado || // Este tiene los 2500
-                paymentPlan.pagado ||
-                0
-            );
-
+            const montoPagado = parseFloat(paymentPlan.monto_pagado_acumulado || 0);
             const moratoria = parseFloat(paymentPlan.moratoria || 0);
             const deudaTotal = creditoTotal + moratoria;
 
             // 3. Calculamos el saldo y progreso con los valores corregidos
             const saldoPendiente = Math.max(deudaTotal - montoPagado, 0);
-            const porcentajePagado = deudaTotal > 0 ? Math.min((montoPagado / deudaTotal) * 100, 100) : 0;
+            const porcentajePagado = creditoTotal > 0
+                ? Math.min((montoPagado / creditoTotal) * 100, 100)
+                : 0;
 
             // --- LÓGICA DE ESTADOS MEJORADA ---
             let estadoPago = 'pendiente';
@@ -130,7 +123,7 @@ export default function StpAccountsTable({
             case 'pagado':
                 return {
                     icon: <FaCheckCircle size={12} />,
-                    text: 'COMPLETADO',
+                    text: 'PAGADO',
                     className: 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-green-500/30'
                 };
             case 'parcial':
@@ -198,53 +191,61 @@ export default function StpAccountsTable({
         </div>
     );
 
-    console.log("¿Qué trae Milton?:", endUsers[0]?.payment_plan);
 
     return (
         <div className="space-y-4">
             {/* --- RESUMEN FINANCIERO MODERNO --- */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                <div className="bg-gradient-to-r from-[#051d26] to-[#04364b] rounded-2xl p-4 shadow-lg transform hover:scale-105">
+
+                {/* Tarjeta 1: Total Crédito */}
+                <div className="bg-gradient-to-r from-[#051d26] to-[#04364b] rounded-2xl p-4 shadow-lg transform hover:scale-105 transition-transform duration-300">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-white text-xs font- uppercase tracking-wider">Total Crédito</p>
+                            <p className="text-white text-xs font-normal uppercase tracking-wider opacity-70">Total Crédito</p>
                             <p className="text-white text-2xl font-normal mt-1">{formatMonto(resumen.totalCredito)}</p>
                         </div>
-                        <FaWallet className="text-[#3d9e9d] text-3xl opacity-80" />
+                        {/* ÍCONO DINÁMICO */}
+                        <FaWallet style={{ color: brandColor }} className="text-3xl opacity-80" />
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-[#051d26] to-[#04364b] rounded-2xl p-4 shadow-lg transform hover:scale-105 transition-all duration-300">
+                {/* Tarjeta 2: Total Pagado */}
+                <div className="bg-gradient-to-r from-[#051d26] to-[#04364b] rounded-2xl p-4 shadow-lg transform hover:scale-105 transition-transform duration-300">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-white text-xs font-normal uppercase tracking-wider">Total Pagado</p>
+                            <p className="text-white text-xs font-normal uppercase tracking-wider opacity-70">Total Pagado</p>
                             <p className="text-white text-2xl font-normal mt-1">{formatMonto(resumen.totalPagado)}</p>
                         </div>
-                        <FaCheckCircle className="text-[#3d9e9d] text-3xl opacity-80" />
+                        {/* ÍCONO DINÁMICO */}
+                        <FaCheckCircle style={{ color: brandColor }} className="text-3xl opacity-80" />
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-[#051d26] to-[#04364b] rounded-2xl p-4 shadow-lg transform hover:scale-105 transition-all duration-300">
+                {/* Tarjeta 3: Saldo Pendiente */}
+                <div className="bg-gradient-to-r from-[#051d26] to-[#04364b] rounded-2xl p-4 shadow-lg transform hover:scale-105 transition-transform duration-300">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-white text-xs font-normal uppercase tracking-wider">Saldo Pendiente</p>
+                            <p className="text-white text-xs font-normal uppercase tracking-wider opacity-70">Saldo Pendiente</p>
                             <p className="text-white text-2xl font-normal mt-1">{formatMonto(resumen.totalPendiente)}</p>
                         </div>
-                        <FaExclamationTriangle className="text-[#4bb8b3] text-3xl opacity-80" />
+                        {/* ÍCONO DINÁMICO */}
+                        <FaExclamationTriangle style={{ color: brandColor }} className="text-3xl opacity-80" />
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-[#051d26] to-[#04364b] rounded-2xl p-4 shadow-lg transform hover:scale-105 transition-all duration-300">
+                {/* Tarjeta 4: Progreso */}
+                <div className="bg-gradient-to-r from-[#051d26] to-[#04364b] rounded-2xl p-4 shadow-lg transform hover:scale-105 transition-transform duration-300">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-white text-xs font-normal uppercase tracking-wider">Progreso</p>
+                            <p className="text-white text-xs font-normal uppercase tracking-wider opacity-70">Progreso</p>
                             <p className="text-white text-2xl font-normal mt-1">
                                 {resumen.totalCredito > 0
                                     ? `${Math.round((resumen.totalPagado / resumen.totalCredito) * 100)}%`
                                     : '0%'}
                             </p>
                         </div>
-                        <FaPercent className="text-[#3d9e9d] text-3xl opacity-80" />
+                        {/* ÍCONO DINÁMICO */}
+                        <FaPercent style={{ color: brandColor }} className="text-3xl opacity-80" />
                     </div>
                 </div>
             </div>
@@ -276,7 +277,7 @@ export default function StpAccountsTable({
                     className="px-4 py-3 text-[#98a5aa] bg-white/80 backdrop-blur-sm border-2 border-slate-100 rounded-2xl text-sm font-medium outline-none focus:border-teal-500 transition-all duration-300 cursor-pointer"
                 >
                     <option value="todos"> Todos ({filteredUsers.length})</option>
-                    <option value="pagado"> Completados ({resumen.clientesPagados})</option>
+                    <option value="pagado"> Pagaado ({resumen.clientesPagados})</option>
                     <option value="parcial"> En Proceso ({resumen.clientesParciales})</option>
                     <option value="pendiente"> Pendientes ({resumen.clientesPendientes})</option>
                     <option value="vencido"> Vencidos</option>
@@ -295,12 +296,14 @@ export default function StpAccountsTable({
                                     animation: 'shimmer-slow 8s linear infinite',
                                     // 2. Gradiente con el color del cliente al 80% de opacidad (cc) 
                                     // 3. El centro (50%) ahora es más ancho para que el color resalte
-                                    backgroundImage: `linear-gradient(90deg, #051a22 0%, ${brandColor}cc 20%, #062b3b 100%)`,
+                                    backgroundImage: `linear-gradient(90deg, #051a22 0%, ${brandColor}cc -10%, #062b3b 20%)`,
                                     backgroundSize: '200% 100%',
                                     borderBottom: `5px solid ${brandColor}66` // Borde más presente
                                 }}
                             >
-                                <th className="py-6 px-6 text-[10px] font-black text-white uppercase tracking-[0.3em]">Cliente</th>
+                                <th className="py-6 px-6 text-[10px] font-black text-white uppercase tracking-[0.3em] mix-blend-difference drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.9)]">
+                                    Cliente
+                                </th>
                                 <th className="py-6 px-6 text-[10px] font-black text-white uppercase tracking-[0.3em] text-right">Movimientos</th>
                                 <th className="py-6 px-6 text-[10px] font-black text-white uppercase tracking-[0.3em] text-right">Pendiente</th>
                                 <th className="py-6 px-6 text-[10px] font-black text-white uppercase tracking-[0.3em] text-center">Estado</th>
@@ -400,7 +403,7 @@ export default function StpAccountsTable({
 
 
                                                 <td className="py-3 px-6 text-center">
-                                                    <span className="inline-block bg-gradient-to-r from-slate-100 to-slate-200 text-slate-700 px-3 py-1 rounded-full text-[11px] font-bold shadow-sm">
+                                                    <span className="inline-block bg-gradient-to-r from-slate-100 to-slate-200 text-slate-700 px-3 py-1 rounded-full text-[10px] font-normal shadow-sm">
                                                         {user.referencia_interna || 'S/R'}
                                                     </span>
                                                 </td>
@@ -458,15 +461,15 @@ export default function StpAccountsTable({
                                                                 <div className="space-y-2">
                                                                     <div className="flex justify-between text-sm">
                                                                         <span className="text-slate-600">Monto del crédito:</span>
-                                                                        <span className="font-bold">{formatMonto(user.creditoTotal)}</span>
+                                                                        <span className="text-slate-700 font-bold">{formatMonto(user.creditoTotal)}</span>
                                                                     </div>
                                                                     <div className="flex justify-between text-sm">
                                                                         <span className="text-slate-600">Enganche:</span>
-                                                                        <span className="font-bold">{formatMonto(user.paymentPlan?.enganche)}</span>
+                                                                        <span className="text-slate-700 font-bold">{formatMonto(user.paymentPlan?.enganche)}</span>
                                                                     </div>
                                                                     <div className="flex justify-between text-sm">
                                                                         <span className="text-slate-600">Plazo:</span>
-                                                                        <span className="font-bold">{user.paymentPlan?.plazo_credito_meses} meses</span>
+                                                                        <span className="text-slate-700 font-bold">{user.paymentPlan?.plazo_credito_meses} meses</span>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -476,15 +479,15 @@ export default function StpAccountsTable({
                                                                 <div className="space-y-2">
                                                                     <div className="flex justify-between text-sm">
                                                                         <span className="text-slate-600">Pago mensual:</span>
-                                                                        <span className="font-bold">{formatMonto(user.montoNormal)}</span>
+                                                                        <span className="text-slate-700 font-bold">{formatMonto(user.montoNormal)}</span>
                                                                     </div>
                                                                     <div className="flex justify-between text-sm">
                                                                         <span className="text-slate-600">Moratoria:</span>
-                                                                        <span className="font-bold text-red-600">{formatMonto(user.moratoria)}</span>
+                                                                        <span className="text-red-600 font-bold">{formatMonto(user.moratoria)}</span>
                                                                     </div>
                                                                     <div className="flex justify-between text-sm">
                                                                         <span className="text-slate-600">Total pagos:</span>
-                                                                        <span className="font-bold">{user.numeroPago} de {user.totalPagos}</span>
+                                                                        <span className="text-slate-700 font-bold">{user.numeroPago} de {user.totalPagos}</span>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -495,7 +498,7 @@ export default function StpAccountsTable({
                                                                     <div className="flex items-center gap-2 text-sm">
                                                                         <FaCalendarAlt className="text-teal-500" />
                                                                         <span className="text-slate-600">Próximo vencimiento:</span>
-                                                                        <span className="font-bold">{formatFecha(user.fechaVencimiento)}</span>
+                                                                        <span className="text-slate-700 font-bold">{formatFecha(user.fechaVencimiento)}</span>
                                                                     </div>
                                                                     {user.estadoPago === 'vencido' && (
                                                                         <div className="mt-2 p-2 bg-red-50 rounded-lg border border-red-200">

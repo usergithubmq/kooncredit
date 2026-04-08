@@ -153,8 +153,17 @@ export default function ProfileView({ clienteInfo, onUpdate }) {
 
             {/* SECCIÓN 2: SEGURIDAD (COMPACTA) */}
             <div className="bg-[#d3e0e5] rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div className="bg-[#051d26] px-6 py-3 border-b border-slate-200 flex items-center gap-3 text-white">
-                    <FaLock size={14} />
+                <div
+                    className="px-6 py-4 flex items-center gap-3 text-white"
+                    style={{
+                        animation: 'shimmer-slow 8s linear infinite',
+                        backgroundImage: `linear-gradient(90deg, #051a22 0%, ${brandColor}cc 20%, #062b3b 100%)`,
+                        backgroundSize: '200% 100%',
+                        borderBottom: `5px solid ${brandColor}66` // Mismo borde que el de Branding
+                    }}
+                >
+                    {/* Ícono dinámico */}
+                    <FaLock size={14} style={{ color: brandColor }} />
                     <span className="text-[10px] font-black uppercase tracking-widest">Protocolo de Acceso</span>
                 </div>
 

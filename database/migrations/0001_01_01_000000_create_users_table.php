@@ -54,10 +54,24 @@ return new class extends Migration
             $table->timestamp('phone_verified_at')->nullable();
 
             // Roles: admin (tú), cliente (la empresa/persona), cliente_final
-            $table->enum('role', ['cliente', 'cliente_final', 'admin'])->default('cliente');
+            $table->enum('role', [
+                'super_admin',      // Tú (Acceso total)
+                'admin',      // Tu equipo de soporte/operaciones
+
+                'cliente',    // Administrador de la empresa cliente
+                'cliente_tesoreria', // Solo finanzas y conciliación
+                'cliente_soporte',  // Solo atención a sus usuarios
+
+                'cliente_final',    // El deudor/pagador (Acceso básico)
+
+                'api_user',         // Rol para integraciones externas
+                'guest'             // Usuario invitado/prospecto
+
+            ])->default('cliente_final');
 
             $table->string('password');
             $table->boolean('must_change_password')->default(true);
+
             $table->rememberToken();
             $table->timestamps();
         });

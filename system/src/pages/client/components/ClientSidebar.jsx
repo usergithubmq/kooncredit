@@ -33,7 +33,7 @@ const ClientSidebar = ({ vistaActual, setVistaActual, clienteInfo, handleLogout,
             >
                 <Icon
                     className="text-lg transition-transform duration-300 group-hover:scale-110"
-                    style={{ color: isActive ? brandColor : '#60e2ff' }}
+                    style={{ color: isActive ? brandColor : brandColor }}
                 />
                 <span className={`text-xs tracking-widest uppercase ${isActive ? 'font-extralight text-white' : 'font-extralight'}`}>
                     {label}

@@ -29,7 +29,7 @@ export default function DashboardHeader({
         if (brightness > 150) {
             return {
                 text: "#051d26",
-                muted: "rgba(5, 29, 38, 0.6)",
+                muted: "#051d26",
                 border: "rgba(5, 29, 38, 0.15)",
                 btn: "#051d26",
                 btnText: "#ffffff",
@@ -39,7 +39,7 @@ export default function DashboardHeader({
         // Si el fondo es oscuro
         return {
             text: "#ffffff",
-            muted: "rgba(255,255,255,0.4)",
+            muted: "#fff",
             border: "rgba(255,255,255,0.1)",
             btn: "#ffffff",
             btnText: "#051d26",
@@ -81,7 +81,7 @@ export default function DashboardHeader({
                     {clienteInfo?.nombre_comercial && (
                         <div className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.25em] mt-1" style={{ color: theme.muted }}>
                             <span className="relative flex h-1.5 w-1.5">
-                                <span className="animate-ping absolute h-full w-full rounded-full opacity-75" style={{ backgroundColor: theme.text }}></span>
+                                <span className="animate-ping absolute h-full w-full rounded-full opacity-100" style={{ backgroundColor: theme.text }}></span>
                                 <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ backgroundColor: theme.text }}></span>
                             </span>
                             {clienteInfo.nombre_comercial}
