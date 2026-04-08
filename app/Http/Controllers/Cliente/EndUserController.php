@@ -27,7 +27,7 @@ class EndUserController extends Controller
 
         try {
             $pagadores = $user->cliente->endUsers()
-                ->with('user')
+                ->with(['user', 'paymentPlan'])
                 ->select('id', 'user_id', 'cliente_id', 'clabe_stp', 'referencia_interna', 'is_active', 'created_at')
                 ->orderBy('created_at', 'desc')
                 ->get()
@@ -40,6 +40,7 @@ class EndUserController extends Controller
                         'referencia_interna' => $endUser->referencia_interna,
                         'is_active'          => $endUser->is_active,
                         'created_at'         => $endUser->created_at,
+                        'payment_plan'       => $endUser->paymentPlan
                     ];
                 });
 

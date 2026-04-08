@@ -52,6 +52,7 @@ export default function Dashboard() {
         setLoading(true);
         try {
             const res = await api.get("/client/end-users");
+
             let rawResponse = res.data;
 
             if (typeof rawResponse === 'string' && rawResponse.includes('{"empresa"')) {
@@ -91,6 +92,17 @@ export default function Dashboard() {
         } finally {
             setLoading(false);
         }
+    };
+
+    console.log("Usuarios actuales (endUsers):", endUsers);
+
+    // En Dashboard.jsx
+    const getPaymentPlanForUser = (userId) => {
+        // Buscamos el usuario en los datos que ya cargamos de la API
+        const user = endUsers.find(u => (u.user_id || u.id) === userId);
+
+        // Si lo encuentra y trae el plan que mandamos desde Laravel, lo devuelve
+        return user?.payment_plan || null;
     };
 
     const refreshData = async () => {
@@ -212,6 +224,7 @@ export default function Dashboard() {
                                 loading={loading}
                                 onRefresh={fetchMyEndUsers}
                                 onViewBalance={handleViewBalance}
+                                getPaymentPlanForUser={getPaymentPlanForUser}
                             />
                         </div>
                     </>
@@ -235,7 +248,7 @@ export default function Dashboard() {
             />
 
             {/* Estilos personalizados */}
-            <style jsx>{`
+            <style>{`
                 @keyframes slideIn {
                     from {
                         opacity: 0;

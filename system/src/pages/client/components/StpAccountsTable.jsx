@@ -12,7 +12,7 @@ export default function StpAccountsTable({
     onCopy,
     loading,
     onViewBalance,
-    getPaymentPlanForUser // Función que recibe user_id y retorna el PaymentPlan
+    getPaymentPlanForUser
 }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
@@ -55,8 +55,11 @@ export default function StpAccountsTable({
     // Calcular datos de pago para cada endUser
     const usersWithPayments = useMemo(() => {
         return endUsers.map(user => {
-            const paymentPlan = getPaymentPlanForUser ? getPaymentPlanForUser(user.user_id) : null;
+            // 1. Prioridad: Si el usuario ya trae el plan (lo que vimos en el log), úsalo.
+            // Si no, intenta usar la función externa.
+            const paymentPlan = user.payment_plan || (getPaymentPlanForUser ? getPaymentPlanForUser(user.user_id || user.id) : null);
 
+            // Si no hay plan, devolvemos el objeto base
             if (!paymentPlan) {
                 return {
                     ...user,
@@ -65,29 +68,40 @@ export default function StpAccountsTable({
                     creditoTotal: 0,
                     montoPagado: 0,
                     porcentajePagado: 0,
-                    estadoPago: 'sin_plan',
-                    proximoPago: null,
-                    fechaVencimiento: null,
-                    numeroPago: 0,
-                    totalPagos: 0,
-                    montoNormal: 0,
-                    moratoria: 0
+                    estadoPago: 'sin_plan'
                 };
             }
 
-            const creditoTotal = paymentPlan.credito || 0;
-            const montoPagado = paymentPlan.monto_pagado_acumulado || 0;
-            const saldoPendiente = creditoTotal - montoPagado;
-            const porcentajePagado = creditoTotal > 0 ? (montoPagado / creditoTotal) * 100 : 0;
+            // 2. Usamos los nombres exactos que vimos en tu consola:
+            const creditoTotal = parseFloat(
+                paymentPlan.credito ||      // Este es null en tu caso
+                paymentPlan.monto_normal || // Este tiene los 2500
+                0
+            );
 
-            // Determinar estado del pago
+            const montoPagado = parseFloat(
+                paymentPlan.monto_pagado_acumulado || // Este tiene los 2500
+                paymentPlan.pagado ||
+                0
+            );
+
+            const moratoria = parseFloat(paymentPlan.moratoria || 0);
+            const deudaTotal = creditoTotal + moratoria;
+
+            // 3. Calculamos el saldo y progreso con los valores corregidos
+            const saldoPendiente = Math.max(deudaTotal - montoPagado, 0);
+            const porcentajePagado = deudaTotal > 0 ? Math.min((montoPagado / deudaTotal) * 100, 100) : 0;
+
+            // --- LÓGICA DE ESTADOS MEJORADA ---
             let estadoPago = 'pendiente';
-            if (saldoPendiente <= 0) {
+            const hoy = new Date();
+            const fechaVenc = paymentPlan.fecha_vencimiento ? new Date(paymentPlan.fecha_vencimiento) : null;
+
+            if (saldoPendiente <= 0.5) { // Margen de centavos para marcar como pagado
                 estadoPago = 'pagado';
-            } else if (paymentPlan.estado === 'vencido' ||
-                (paymentPlan.fecha_vencimiento && new Date(paymentPlan.fecha_vencimiento) < new Date())) {
+            } else if (paymentPlan.estado === 'vencido' || (fechaVenc && fechaVenc < hoy)) {
                 estadoPago = 'vencido';
-            } else if (montoPagado > 0 && saldoPendiente > 0) {
+            } else if (montoPagado > 0) {
                 estadoPago = 'parcial';
             }
 
@@ -95,7 +109,7 @@ export default function StpAccountsTable({
                 ...user,
                 tienePlan: true,
                 paymentPlan,
-                creditoTotal,
+                creditoTotal: deudaTotal, // Mostramos el total real que debe entrar
                 montoPagado,
                 saldoPendiente,
                 porcentajePagado,
@@ -105,7 +119,7 @@ export default function StpAccountsTable({
                 numeroPago: paymentPlan.numero_pago || 0,
                 totalPagos: paymentPlan.total_pagos || 0,
                 montoNormal: paymentPlan.monto_normal || 0,
-                moratoria: paymentPlan.moratoria || 0
+                moratoria
             };
         });
     }, [endUsers, getPaymentPlanForUser]);
@@ -183,6 +197,8 @@ export default function StpAccountsTable({
             <p className="text-slate-400 text-sm font-medium animate-pulse">Cargando cuentas STP y planes de pago...</p>
         </div>
     );
+
+    console.log("¿Qué trae Milton?:", endUsers[0]?.payment_plan);
 
     return (
         <div className="space-y-4">
@@ -329,24 +345,39 @@ export default function StpAccountsTable({
                                                 </td>
 
                                                 <td className="py-3 px-6">
-                                                    <div className="space-y-1">
-                                                        <div className="flex justify-between text-xs">
-                                                            <span className="text-slate-600">Credito:</span>
-                                                            <span className="font-bold text-slate-800">{formatMonto(user.creditoTotal)}</span>
-                                                        </div>
-                                                        <div className="flex justify-between text-xs">
-                                                            <span className="text-slate-600">Pagado:</span>
-                                                            <span className="font-bold text-[#279a94]">{formatMonto(user.montoPagado)}</span>
-                                                        </div>
-                                                        {user.tienePlan && (
-                                                            <div className="w-full bg-slate-100 rounded-full h-1.5 mt-1 overflow-hidden">
-                                                                <div
-                                                                    className="bg-gradient-to-r from-teal-500 to-teal-600 h-full rounded-full transition-all duration-500"
-                                                                    style={{ width: `${porcentajeProgreso}%` }}
-                                                                />
+                                                    {/* Calculamos el progreso internamente para mayor claridad */}
+                                                    {(() => {
+                                                        const total = parseFloat(user.creditoTotal) || 0;
+                                                        const pagado = parseFloat(user.montoPagado) || 0;
+                                                        const porcentaje = total > 0 ? Math.min((pagado / total) * 100, 100) : 0;
+
+                                                        return (
+                                                            <div className="space-y-1">
+                                                                <div className="flex justify-between text-xs">
+                                                                    <span className="text-slate-600">Crédito:</span>
+                                                                    <span className="font-bold text-slate-800">
+                                                                        {formatMonto(total)}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="flex justify-between text-xs">
+                                                                    <span className="text-slate-600">Pagado:</span>
+                                                                    <span className="font-bold text-[#279a94]">
+                                                                        {formatMonto(pagado)} {/* <--- Aquí se pinta el 2500 */}
+                                                                    </span>
+                                                                </div>
+                                                                {/* Mostramos la barra si el usuario tiene un plan activo */}
+                                                                {user.tienePlan && (
+                                                                    <div className="w-full bg-slate-100 rounded-full h-1.5 mt-1 overflow-hidden shadow-inner">
+                                                                        <div
+                                                                            className="bg-gradient-to-r from-teal-500 to-teal-600 h-full rounded-full transition-all duration-700 ease-out"
+                                                                            style={{ width: `${porcentaje}%` }}
+                                                                            title={`${porcentaje.toFixed(2)}%`}
+                                                                        />
+                                                                    </div>
+                                                                )}
                                                             </div>
-                                                        )}
-                                                    </div>
+                                                        );
+                                                    })()}
                                                 </td>
 
                                                 <td className="py-3 px-6 text-right">

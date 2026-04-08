@@ -37,4 +37,10 @@ class EndUser extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function paymentPlan()
+    {
+        // Un EndUser tiene un plan de pago (relación 1 a 1)
+        return $this->hasOne(PaymentPlan::class, 'user_id', 'user_id');
+    }
 }

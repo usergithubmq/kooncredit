@@ -76,19 +76,20 @@ class StpWebhookController extends Controller
 
         if (empty($clabe)) return;
 
-        // Buscamos el plan activo para esta CLABE
-        $plan = PaymentPlan::where('cuenta_beneficiario', $clabe)
-            ->whereIn('estado', ['pendiente', 'parcial'])
-            ->first();
+        // Buscamos el plan por CLABE sin importar el estado actual
+        // (A veces un cliente paga un plan que ya estaba 'pagado' por error y queremos trackearlo)
+        $plan = PaymentPlan::where('cuenta_beneficiario', $clabe)->first();
 
         if ($plan) {
-            $nuevoAcumulado = (float)$plan->monto_pagado_acumulado + $montoRecibido;
-            $deudaTotal = (float)$plan->credito + (float)$plan->moratoria;
+            $nuevoAcumulado = (float)($plan->monto_pagado_acumulado ?? 0) + $montoRecibido;
 
-            // Margen de 1 centavo para considerar pagado
-            $nuevoEstado = ($nuevoAcumulado >= ($deudaTotal - 0.01)) ? 'pagado' : 'parcial';
+            // Sumamos el crédito base + moratoria
+            $deudaTotal = (float)($plan->credito ?? 0) + (float)($plan->moratoria ?? 0);
 
-            // 1. Actualizar el Plan de Pagos
+            // Si el acumulado llega al total (con margen de centavos), es pagado
+            $nuevoEstado = ($nuevoAcumulado >= ($deudaTotal - 0.05)) ? 'pagado' : 'parcial';
+
+            // Actualizamos usando update para disparar eventos de Eloquent
             $plan->update([
                 'monto_pagado_acumulado' => $nuevoAcumulado,
                 'estado'                 => $nuevoEstado,
@@ -114,9 +115,9 @@ class StpWebhookController extends Controller
                 ]
             ]);
 
-            Log::info("Denar - PAGO_CONCILIADO: CLABE {$clabe} sumó {$montoRecibido}. Nuevo Estado: {$nuevoEstado}");
+            Log::info("¡ÉXITO! CLABE {$clabe} actualizó a {$nuevoAcumulado}.");
         } else {
-            Log::warning("Denar - WEBHOOK_SIN_DESTINO: Se recibió pago de {$montoRecibido} para CLABE {$clabe} pero no hay plan activo.");
+            Log::error("ERROR CRÍTICO: La CLABE {$clabe} no existe en la tabla payment_plans.");
         }
     }
 }
